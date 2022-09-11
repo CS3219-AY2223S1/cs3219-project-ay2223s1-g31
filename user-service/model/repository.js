@@ -21,3 +21,11 @@ export async function createUser(params) {
 export async function userExists(params) {
   return await UserModel.exists(params);
 }
+
+export async function findOneUser(filter, projection) {
+  return await UserModel.findOne(filter, projection);
+}
+
+export async function findAllUsers(filter, projection) {
+  return await UserModel.findOne(filter, projection);
+}
