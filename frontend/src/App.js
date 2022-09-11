@@ -7,7 +7,7 @@ import {
 import SignupPage from "./components/SignupPage";
 import { Box } from "@mui/material";
 import LoginPage from "./components/LoginPage";
-import MatchingPage from "./components/MatchingPage";
+import TestingPage from "./components/TestingPage";
 
 function App() {
   return (
@@ -22,7 +22,7 @@ function App() {
             ></Route>
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/matching" element={<MatchingPage />} />
+            <Route path="/testing" element={<TestingPage />} />
           </Routes>
         </Router>
       </Box>

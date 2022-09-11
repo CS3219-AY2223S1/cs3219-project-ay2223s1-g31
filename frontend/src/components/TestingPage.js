@@ -5,7 +5,7 @@ import axios from "../api/axios";
 import { URL_USER_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
 
-function MatchingPage() {
+function TestingPage() {
   const { auth } = useAuth();
   const navigate = useNavigate();
 
@@ -25,15 +25,29 @@ function MatchingPage() {
       console.log(err);
     }
   };
+
+  const deleteAccount = async () => {
+    try {
+      const res = await axios.delete(URL_USER_SVC);
+      console.log(res);
+      navigate("/login");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
   return (
     <div>
       <Typography variant={"h3"} mb={"2rem"}>
-        Matching Page
+        Testing Page
       </Typography>
       <div>{JSON.stringify(auth)}</div>
       <Button onClick={logout}>Logout</Button>
+      <Button color="error" onClick={deleteAccount}>
+        Delete account
+      </Button>
     </div>
   );
 }
 
-export default MatchingPage;
+export default TestingPage;

@@ -1,7 +1,12 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { createUser, login, logout } from "./controller/user-controller.js";
+import {
+  createUser,
+  deleteUser,
+  login,
+  logout,
+} from "./controller/user-controller.js";
 import { authenticateToken } from "./middlewares/authenticateToken.js";
 
 const FRONTEND_ORIGIN = "http://localhost:3000";
@@ -30,6 +35,7 @@ app.use("/api/user", router).all((_, res) => {
 router.get("/ping", (_, res) => res.send("Hello World from user-service"));
 
 router.post("/", createUser);
+router.delete("/", authenticateToken, deleteUser);
 router.post("/login", login);
 router.post("/logout", logout);
 

@@ -15,6 +15,8 @@ mongoose.connect(mongoDB, { useNewUrlParser: true, useUnifiedTopology: true });
 let db = mongoose.connection;
 db.on("error", console.error.bind(console, "MongoDB connection error:"));
 
+// User logic
+
 export async function createUser(params) {
   return new UserModel(params);
 }
@@ -30,6 +32,12 @@ export async function findOneUser(filter, projection) {
 export async function findAllUsers(filter, projection) {
   return await UserModel.find(filter, projection);
 }
+
+export async function deleteUser(filter) {
+  return await UserModel.findOneAndRemove(filter);
+}
+
+// Session logic
 
 export async function createSession(params) {
   return new SessionModel(params);
