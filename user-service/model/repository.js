@@ -3,6 +3,7 @@ import "dotenv/config";
 
 //Set up mongoose connection
 import mongoose from "mongoose";
+import SessionModel from "./session-model.js";
 
 let mongoDB =
   process.env.ENV == "PROD"
@@ -27,5 +28,17 @@ export async function findOneUser(filter, projection) {
 }
 
 export async function findAllUsers(filter, projection) {
-  return await UserModel.findOne(filter, projection);
+  return await UserModel.find(filter, projection);
+}
+
+export async function createSession(params) {
+  return new SessionModel(params);
+}
+
+export async function findOneSession(filter, projection) {
+  return await SessionModel.findOne(filter, projection);
+}
+
+export async function findAllSessions(filter, projection) {
+  return await SessionModel.find(filter, projection);
 }
