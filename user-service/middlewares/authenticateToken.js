@@ -1,14 +1,14 @@
 import { ormFindOneSession } from "../model/session-orm.js";
 import { validateAccessToken } from "../utils/auth.js";
 
-export const authenticateToken = (req, res, next) => {
+export const authenticateToken = async (req, res, next) => {
   const token = req.cookies.access_token;
   if (!token) {
     return res
       .sendStatus(403)
       .json({ message: "Access token required for authentication" });
   }
-  const blacklistToken = ormFindOneSession(token);
+  const blacklistToken = await ormFindOneSession(token);
   if (blacklistToken) {
     return res.status(401).send({ message: "Access token already expired" });
   }

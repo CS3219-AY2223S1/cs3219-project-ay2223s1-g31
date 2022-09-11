@@ -6,7 +6,7 @@ import {
 
 export async function ormCreateSession(token) {
   try {
-    const newSession = await createSession(token);
+    const newSession = await createSession({ token });
     newSession.save();
     return true;
   } catch (err) {

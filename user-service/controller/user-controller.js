@@ -1,6 +1,7 @@
 import { ormCreateSession } from "../model/session-orm.js";
 import {
   ormCreateUser as _createUser,
+  ormDeleteUser,
   ormFindOneByUsername,
 } from "../model/user-orm.js";
 import { generateAccessToken } from "../utils/auth.js";
@@ -79,7 +80,7 @@ export async function logout(req, res) {
     if (!token) {
       return res.status(200).json({ message: "You are already logged out!" });
     }
-    const blacklistedSession = ormCreateSession(token);
+    const blacklistedSession = await ormCreateSession(token);
     console.log(blacklistedSession);
     if (blacklistedSession.err) {
       return res.status(400).json({ message: "Could not log out!" });
@@ -91,6 +92,32 @@ export async function logout(req, res) {
   } catch (err) {
     return res.status(500).json({
       message: "Database failure when logging out!",
+    });
+  }
+}
+
+export async function deleteUser(req, res) {
+  try {
+    const { username } = req.user;
+    console.log(username);
+    const deletedUser = await ormDeleteUser(username);
+    if (!deletedUser) {
+      return res.status(401).json({ message: "User does not exist!" });
+    }
+    console.log(deletedUser);
+    const blacklistedSession = await ormCreateSession(req.cookies.access_token);
+    console.log(blacklistedSession);
+    if (blacklistedSession.err) {
+      return res.status(400).json({ message: err });
+    }
+    res
+      .clearCookie("access_token")
+      .status(200)
+      .json({ message: `User ${username} has been deleted!` });
+  } catch (err) {
+    console.log(err);
+    return res.status(500).json({
+      message: "Database failure when deleting user!",
     });
   }
 }

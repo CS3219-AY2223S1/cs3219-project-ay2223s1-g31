@@ -25,7 +25,7 @@ import { useNavigate } from "react-router-dom";
 const LOGIN_API = URL_USER_SVC + "/login";
 
 // frontend routes
-const REDIRECT_URL = "/matching";
+const REDIRECT_URL = "/testing";
 
 function LoginPage() {
   const { setAuth } = useAuth();
