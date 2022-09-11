@@ -4,7 +4,11 @@ import {
   ormDeleteUser,
   ormFindOneByUsername,
 } from "../model/user-orm.js";
-import { generateAccessToken } from "../utils/auth.js";
+import {
+  generateAccessToken,
+  generateHashedPassword,
+  validatePassword,
+} from "../utils/auth.js";
 
 const ENV = process.env.ENV;
 
@@ -12,7 +16,8 @@ export async function createUser(req, res) {
   try {
     const { username, password } = req.body;
     if (username && password) {
-      const resp = await _createUser(username, password);
+      const hashedPassword = await generateHashedPassword(password);
+      const resp = await _createUser(username, hashedPassword);
       console.log(resp);
       if (resp === false) {
         return res.status(409).json({ message: "User already existed!" });
@@ -51,7 +56,7 @@ export async function login(req, res) {
     console.log(user);
     if (!user) {
       return res.status(400).json({ message: "Username does not exist!" });
-    } else if (user.password === password) {
+    } else if (await validatePassword(password, user.password)) {
       const data = {
         username,
       };
