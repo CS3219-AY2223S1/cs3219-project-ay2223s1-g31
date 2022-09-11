@@ -1,4 +1,5 @@
 import jwt from "jsonwebtoken";
+import bcrypt from "bcrypt";
 
 export function generateAccessToken(user) {
   return jwt.sign(
@@ -23,4 +24,12 @@ export function generateRefreshToken(user) {
     process.env.REFRESH_TOKEN_SECRET,
     { expiresIn: "1d" }
   );
+}
+
+export async function generateHashedPassword(password) {
+  return await bcrypt.hash(password, 10);
+}
+
+export async function validatePassword(password, hashedPassword) {
+  return await bcrypt.compare(password, hashedPassword);
 }
