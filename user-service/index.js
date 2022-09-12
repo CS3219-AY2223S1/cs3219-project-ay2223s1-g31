@@ -1,7 +1,13 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
-import { createUser, login } from "./controller/user-controller.js";
+import {
+  createUser,
+  deleteUser,
+  login,
+  logout,
+} from "./controller/user-controller.js";
+import { authenticateToken } from "./middlewares/authenticateToken.js";
 
 const FRONTEND_ORIGIN = "http://localhost:3000";
 
@@ -24,9 +30,18 @@ app.use("/api/user", router).all((_, res) => {
 });
 
 // Controller will contain all the User-defined Routes
-router.get("/", (_, res) => res.send("Hello World from user-service"));
-router.post("/", createUser);
 
+// Check if the server is alive
+router.get("/ping", (_, res) => res.send("Hello World from user-service"));
+
+router.post("/", createUser);
+router.delete("/", authenticateToken, deleteUser);
 router.post("/login", login);
+router.post("/logout", logout);
+
+// Protected route just for testing auth
+router.get("/protected", authenticateToken, (req, res) => {
+  res.status(200).json({ message: "Authenticated", user: req.user });
+});
 
 app.listen(8000, () => console.log("user-service listening on port 8000"));
