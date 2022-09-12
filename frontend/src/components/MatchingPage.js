@@ -1,33 +1,30 @@
 import { Box, Button, FormControl, FormControlLabel, FormLabel, LinearProgress, Radio, RadioGroup } from '@mui/material'
-import React, { useEffect, useState } from 'react'
+import React, { useState } from 'react'
+
+const Difficulty = {
+  EASY:'easy',
+  MEDIUM:'medium',
+  HARD:'hard',
+  NONE:''
+}
 
 function MatchingPage() {
-  const [difficulty, setDifficulty] = useState('')
-  const [timer, setTimer] = useState(0)
-
-  useEffect(() => {
-    setInterval(() => {
-      setTimer(30)
-      setTimer((x) => x-1)
-    }, 1000);
-  }, [])
+  const [difficulty, setDifficulty] = useState(Difficulty.NONE)
+  const [isFinding, setIsFinding] = useState(false)
   
-
   const handleDifficultyChange = (e) => {
     setDifficulty(e.target.value)
   }
 
   const handleFindMatch = (e) => {
     e.preventDefault()
-    setTimer(30)
 
-    const decrement = setInterval(() => {
-      setTimer((x) => x-1)
+    if (difficulty === Difficulty.NONE) {
+      // error handling
+      return
+    }
 
-      if (timer === 0) {
-        clearInterval(decrement)
-      }
-    }, 1000);
+    setIsFinding(true)
   }
 
   return (
@@ -40,20 +37,21 @@ function MatchingPage() {
             value={difficulty}
             onChange={handleDifficultyChange}
             >
-            <FormControlLabel value="easy" control={<Radio />} label="Easy" />
-            <FormControlLabel value="medium" control={<Radio />} label="Medium" />
-            <FormControlLabel value="hard" control={<Radio />} label="Hard" />
+            <FormControlLabel value={Difficulty.EASY} control={<Radio />} label="Easy" />
+            <FormControlLabel value={Difficulty.MEDIUM} control={<Radio />} label="Medium" />
+            <FormControlLabel value={Difficulty.HARD} control={<Radio />} label="Hard" />
           </RadioGroup>
           <Button type="submit" variant="contained" on>
             Find Match
           </Button>
         </FormControl>
       </form>
-      {/* {timer !== 0 &&  */}
+      {isFinding &&
       <Box>
-        <Box>Finding Match ({timer})</Box>
+        <Box>Finding Match ...</Box>
         <LinearProgress />
-      </Box>
+        <Button onClick={() => setIsFinding(false)}>Cancel</Button>
+      </Box>}
     </Box>
   )
 }
