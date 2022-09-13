@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import morgan from "morgan";
 import {
   createUser,
   deleteUser,
@@ -21,6 +22,7 @@ app.use(
   })
 );
 app.use(cookieParser());
+app.use(morgan("dev"));
 
 const router = express.Router();
 

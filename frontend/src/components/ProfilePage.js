@@ -5,8 +5,8 @@ import axios from "../api/axios";
 import { URL_USER_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
 
-function TestingPage() {
-  const { auth } = useAuth();
+function ProfilePage() {
+  const { auth, logout } = useAuth();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -15,16 +15,6 @@ function TestingPage() {
       .then((res) => console.log(res))
       .catch((err) => console.log(err));
   }, []);
-
-  const logout = async () => {
-    try {
-      const res = await axios.post(URL_USER_SVC + "/logout");
-      console.log(res);
-      navigate("/login");
-    } catch (err) {
-      console.log(err);
-    }
-  };
 
   const deleteAccount = async () => {
     try {
@@ -36,13 +26,18 @@ function TestingPage() {
     }
   };
 
+  const handleLoggingOut = () => {
+    logout();
+    navigate("/login");
+  };
+
   return (
     <div>
       <Typography variant={"h3"} mb={"2rem"}>
         Testing Page
       </Typography>
       <div>{JSON.stringify(auth)}</div>
-      <Button onClick={logout}>Logout</Button>
+      <Button onClick={handleLoggingOut}>Logout</Button>
       <Button color="error" onClick={deleteAccount}>
         Delete account
       </Button>
@@ -50,4 +45,4 @@ function TestingPage() {
   );
 }
 
-export default TestingPage;
+export default ProfilePage;

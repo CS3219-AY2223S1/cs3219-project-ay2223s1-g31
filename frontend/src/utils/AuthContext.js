@@ -1,14 +1,29 @@
 import { createContext, useEffect, useState } from "react";
 import { useContext } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "../api/axios";
+import { URL_USER_SVC } from "../configs";
 
 const AUTH_KEY = "react_app_auth";
 
 const AuthContext = createContext({});
 
 export const AuthContextProvider = ({ children }) => {
-  const [auth, setAuth] = useState({
+  const initialState = {
     username: "",
-  });
+  };
+  const [auth, setAuth] = useState(initialState);
+
+  const logout = async () => {
+    try {
+      const res = await axios.post(URL_USER_SVC + "/logout");
+      setAuth(initialState);
+      window.localStorage.removeItem(AUTH_KEY);
+      console.log(res);
+    } catch (err) {
+      console.log(err);
+    }
+  };
 
   useEffect(() => {
     const storedAuth = window.localStorage.getItem(AUTH_KEY);
@@ -27,7 +42,7 @@ export const AuthContextProvider = ({ children }) => {
   }, [auth]);
 
   return (
-    <AuthContext.Provider value={{ auth, setAuth }}>
+    <AuthContext.Provider value={{ auth, setAuth, logout }}>
       {children}
     </AuthContext.Provider>
   );

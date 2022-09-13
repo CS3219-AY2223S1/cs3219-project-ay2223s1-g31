@@ -115,7 +115,7 @@ export async function deleteUser(req, res) {
     if (blacklistedSession.err) {
       return res.status(400).json({ message: err });
     }
-    res
+    return res
       .clearCookie("access_token")
       .status(200)
       .json({ message: `User ${username} has been deleted!` });
