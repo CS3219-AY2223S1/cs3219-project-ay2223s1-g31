@@ -14,15 +14,9 @@ export const AuthContextProvider = ({ children }) => {
   };
   const [auth, setAuth] = useState(initialState);
 
-  const logout = async () => {
-    try {
-      const res = await axios.post(URL_USER_SVC + "/logout");
-      setAuth(initialState);
-      window.localStorage.removeItem(AUTH_KEY);
-      console.log(res);
-    } catch (err) {
-      console.log(err);
-    }
+  const clearAuth = () => {
+    setAuth(initialState);
+    window.localStorage.removeItem(AUTH_KEY);
   };
 
   useEffect(() => {
@@ -42,7 +36,7 @@ export const AuthContextProvider = ({ children }) => {
   }, [auth]);
 
   return (
-    <AuthContext.Provider value={{ auth, setAuth, logout }}>
+    <AuthContext.Provider value={{ auth, setAuth, clearAuth }}>
       {children}
     </AuthContext.Provider>
   );

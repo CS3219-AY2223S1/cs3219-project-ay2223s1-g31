@@ -3,6 +3,7 @@ import {
   ormCreateUser as _createUser,
   ormDeleteUser,
   ormFindOneByUsername,
+  ormUpdateUserPassword,
 } from "../model/user-orm.js";
 import {
   generateAccessToken,
@@ -101,10 +102,45 @@ export async function logout(req, res) {
   }
 }
 
+export async function updateUserPassword(req, res) {
+  try {
+    const { username } = req.user;
+    const { oldPassword, newPassword } = req.body;
+    if (!oldPassword || !newPassword) {
+      return res
+        .status(400)
+        .json({ message: "New password/Old password are missing!" });
+    }
+    const user = await ormFindOneByUsername(username);
+    console.log(user);
+    if (!user) {
+      return res.status(400).json({ message: "User does not exist!" });
+    } else if (!(await validatePassword(oldPassword, user.password))) {
+      return res.status(400).json({ message: "Old password is not correct!" });
+    }
+    const hashedNewPassword = await generateHashedPassword(newPassword);
+    const updatedUser = await ormUpdateUserPassword(
+      username,
+      hashedNewPassword
+    );
+    console.log(updatedUser);
+    if (updatedUser.err) {
+      return res.status(400).json({ message: "Could not change password!" });
+    }
+    return res
+      .clearCookie("access_token")
+      .status(200)
+      .json({ message: `User ${username} has been deleted!` });
+  } catch (err) {
+    return res.status(500).json({
+      message: "Database failure when logging out!",
+    });
+  }
+}
+
 export async function deleteUser(req, res) {
   try {
     const { username } = req.user;
-    console.log(username);
     const deletedUser = await ormDeleteUser(username);
     if (!deletedUser) {
       return res.status(401).json({ message: "User does not exist!" });
@@ -118,7 +154,7 @@ export async function deleteUser(req, res) {
     return res
       .clearCookie("access_token")
       .status(200)
-      .json({ message: `User ${username} has been deleted!` });
+      .json({ message: `User's password has been updated!` });
   } catch (err) {
     console.log(err);
     return res.status(500).json({

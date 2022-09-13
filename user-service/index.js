@@ -7,6 +7,7 @@ import {
   deleteUser,
   login,
   logout,
+  updateUserPassword,
 } from "./controller/user-controller.js";
 import { authenticateToken } from "./middlewares/authenticateToken.js";
 
@@ -40,6 +41,7 @@ router.post("/", createUser);
 router.delete("/", authenticateToken, deleteUser);
 router.post("/login", login);
 router.post("/logout", logout);
+router.post("/changePassword", authenticateToken, updateUserPassword);
 
 // Protected route just for testing auth
 router.get("/protected", authenticateToken, (req, res) => {

@@ -1,20 +1,34 @@
-import { Button, Typography } from "@mui/material";
-import React, { useEffect } from "react";
+import {
+  Button,
+  Typography,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogActions,
+  TextField,
+} from "@mui/material";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import { URL_USER_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
 
 function ProfilePage() {
-  const { auth, logout } = useAuth();
+  const { auth, clearAuth } = useAuth();
   const navigate = useNavigate();
+  const [formValue, setFormValue] = useState({
+    oldPassword: "",
+    newPassword: "",
+  });
+  const [dialogOpen, setDialogOpen] = useState(false);
 
-  useEffect(() => {
-    axios
-      .get(URL_USER_SVC + "/protected")
-      .then((res) => console.log(res))
-      .catch((err) => console.log(err));
-  }, []);
+  const handleDialogClose = () => {
+    setDialogOpen(false);
+    setFormValue({
+      oldPassword: "",
+      newPassword: "",
+    });
+  };
 
   const deleteAccount = async () => {
     try {
@@ -26,21 +40,83 @@ function ProfilePage() {
     }
   };
 
-  const handleLoggingOut = () => {
-    logout();
-    navigate("/login");
+  const handleLoggingOut = async () => {
+    try {
+      const res = await axios.post(URL_USER_SVC + "/logout");
+      console.log(res);
+      clearAuth();
+      navigate("/login");
+    } catch (err) {
+      console.log(err);
+    }
+  };
+
+  const handleChangePassword = async () => {
+    try {
+      const res = await axios.post(URL_USER_SVC + "/changePassword", formValue);
+      console.log(res);
+      navigate("/login");
+    } catch (err) {
+      console.log(err);
+    }
   };
 
   return (
     <div>
       <Typography variant={"h3"} mb={"2rem"}>
-        Testing Page
+        Profile
       </Typography>
-      <div>{JSON.stringify(auth)}</div>
+      <Typography mb={2}>Username: {auth.username}</Typography>
       <Button onClick={handleLoggingOut}>Logout</Button>
+      <Button onClick={() => setDialogOpen(true)}>Change password</Button>
       <Button color="error" onClick={deleteAccount}>
         Delete account
       </Button>
+      <Dialog
+        open={dialogOpen}
+        onClose={handleDialogClose}
+        fullWidth
+        maxWidth={"sm"}
+      >
+        <DialogTitle>Change password</DialogTitle>
+        <DialogContent sx={{ display: "flex", flexDirection: "column" }}>
+          <TextField
+            label="Old password"
+            variant="standard"
+            required
+            value={formValue.oldPassword}
+            onChange={(e) =>
+              setFormValue((formValue) => ({
+                ...formValue,
+                oldPassword: e.target.value,
+              }))
+            }
+            type="password"
+            // sx={{ marginBottom: "1rem" }}
+            autoFocus
+          />
+          <TextField
+            label="New password"
+            variant="standard"
+            required
+            value={formValue.newPassword}
+            onChange={(e) =>
+              setFormValue((formValue) => ({
+                ...formValue,
+                newPassword: e.target.value,
+              }))
+            }
+            type="password"
+            // sx={{ marginBottom: "2rem" }}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDialogClose}>Cancel</Button>
+          <Button onClick={handleChangePassword} color={"error"}>
+            Change password
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
