@@ -12,10 +12,12 @@ import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import { URL_USER_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
+import { useSnackbar } from "notistack";
 
 function ProfilePage() {
   const { auth, clearAuth } = useAuth();
   const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
   const [formValue, setFormValue] = useState({
     oldPassword: "",
     newPassword: "",
@@ -36,6 +38,7 @@ function ProfilePage() {
       console.log(res);
       navigate("/login");
     } catch (err) {
+      enqueueSnackbar(err.response.data.message, { variant: "error" });
       console.log(err);
     }
   };
@@ -47,6 +50,7 @@ function ProfilePage() {
       clearAuth();
       navigate("/login");
     } catch (err) {
+      enqueueSnackbar(err.response.data.message, { variant: "error" });
       console.log(err);
     }
   };
@@ -57,6 +61,7 @@ function ProfilePage() {
       console.log(res);
       navigate("/login");
     } catch (err) {
+      enqueueSnackbar(err.response.data.message, { variant: "error" });
       console.log(err);
     }
   };

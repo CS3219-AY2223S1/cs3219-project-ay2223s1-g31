@@ -9,6 +9,7 @@ import MatchingPage from "./components/MatchingPage";
 import LoginPage from "./components/LoginPage";
 import ProfilePage from "./components/ProfilePage";
 import Layout from "./components/Layout";
+import HomePage from "./components/HomePage";
 
 function App() {
   return (
@@ -16,11 +17,7 @@ function App() {
       <Router>
         <Layout>
           <Routes>
-            <Route
-              exact
-              path="/"
-              element={<Navigate replace to="/signup" />}
-            ></Route>
+            <Route path="/" element={<HomePage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/profile" element={<ProfilePage />} />

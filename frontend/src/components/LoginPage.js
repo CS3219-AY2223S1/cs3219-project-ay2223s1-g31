@@ -123,7 +123,7 @@ function LoginPage() {
         open={dialog.open}
         onClose={() => {
           closeDialog();
-          navigate(REDIRECT_URL);
+          isLoginSuccess && navigate(REDIRECT_URL);
         }}
       >
         <DialogTitle>{dialog.title}</DialogTitle>

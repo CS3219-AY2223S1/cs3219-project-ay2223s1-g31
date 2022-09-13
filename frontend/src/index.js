@@ -4,11 +4,14 @@ import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
 import { AuthContextProvider } from "./utils/AuthContext";
+import { SnackbarProvider } from "notistack";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <AuthContextProvider>
-    <App />
+  <AuthContextProvider autoHideDuration={3000} preventDuplicate>
+    <SnackbarProvider>
+      <App />
+    </SnackbarProvider>
   </AuthContextProvider>
 );
 
