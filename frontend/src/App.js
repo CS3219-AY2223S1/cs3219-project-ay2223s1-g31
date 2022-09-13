@@ -5,16 +5,16 @@ import {
   Navigate,
 } from "react-router-dom";
 import SignupPage from "./components/SignupPage";
-import MatchingPage from './components/MatchingPage'
-import { Box } from "@mui/material";
+import MatchingPage from "./components/MatchingPage";
 import LoginPage from "./components/LoginPage";
-import TestingPage from "./components/TestingPage";
+import ProfilePage from "./components/ProfilePage";
+import Layout from "./components/Layout";
 
 function App() {
   return (
     <div className="App">
-      <Box display={"flex"} flexDirection={"column"} padding={"4rem"}>
-        <Router>
+      <Router>
+        <Layout>
           <Routes>
             <Route
               exact
@@ -23,11 +23,11 @@ function App() {
             ></Route>
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/testing" element={<TestingPage />} />
-            <Route path="/matching" element={<MatchingPage/>}/>
+            <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/matching" element={<MatchingPage />} />
           </Routes>
-        </Router>
-      </Box>
+        </Layout>
+      </Router>
     </div>
   );
 }

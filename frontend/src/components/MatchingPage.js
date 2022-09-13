@@ -1,59 +1,81 @@
-import { Box, Button, FormControl, FormControlLabel, FormLabel, LinearProgress, Radio, RadioGroup } from '@mui/material'
-import React, { useState } from 'react'
+import {
+  Box,
+  Button,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  LinearProgress,
+  Radio,
+  RadioGroup,
+} from "@mui/material";
+import React, { useState } from "react";
 
 const Difficulty = {
-  EASY:'easy',
-  MEDIUM:'medium',
-  HARD:'hard',
-  NONE:''
-}
+  EASY: "easy",
+  MEDIUM: "medium",
+  HARD: "hard",
+  NONE: "",
+};
 
 function MatchingPage() {
-  const [difficulty, setDifficulty] = useState(Difficulty.NONE)
-  const [isFinding, setIsFinding] = useState(false)
-  
+  const [difficulty, setDifficulty] = useState(Difficulty.NONE);
+  const [isFinding, setIsFinding] = useState(false);
+
   const handleDifficultyChange = (e) => {
-    setDifficulty(e.target.value)
-  }
+    setDifficulty(e.target.value);
+  };
 
   const handleFindMatch = (e) => {
-    e.preventDefault()
+    e.preventDefault();
 
     if (difficulty === Difficulty.NONE) {
       // error handling
-      return
+      return;
     }
 
-    setIsFinding(true)
-  }
+    setIsFinding(true);
+  };
 
   return (
     <Box>
       <form onSubmit={handleFindMatch}>
         <FormControl>
-          <FormLabel >Difficulty</FormLabel>
+          <FormLabel>Difficulty</FormLabel>
           <RadioGroup
             name="difficulty-selector-group"
             value={difficulty}
             onChange={handleDifficultyChange}
-            >
-            <FormControlLabel value={Difficulty.EASY} control={<Radio />} label="Easy" />
-            <FormControlLabel value={Difficulty.MEDIUM} control={<Radio />} label="Medium" />
-            <FormControlLabel value={Difficulty.HARD} control={<Radio />} label="Hard" />
+          >
+            <FormControlLabel
+              value={Difficulty.EASY}
+              control={<Radio />}
+              label="Easy"
+            />
+            <FormControlLabel
+              value={Difficulty.MEDIUM}
+              control={<Radio />}
+              label="Medium"
+            />
+            <FormControlLabel
+              value={Difficulty.HARD}
+              control={<Radio />}
+              label="Hard"
+            />
           </RadioGroup>
-          <Button type="submit" variant="contained" on>
+          <Button type="submit" variant="contained">
             Find Match
           </Button>
         </FormControl>
       </form>
-      {isFinding &&
-      <Box>
-        <Box>Finding Match ...</Box>
-        <LinearProgress />
-        <Button onClick={() => setIsFinding(false)}>Cancel</Button>
-      </Box>}
+      {isFinding && (
+        <Box>
+          <Box>Finding Match ...</Box>
+          <LinearProgress />
+          <Button onClick={() => setIsFinding(false)}>Cancel</Button>
+        </Box>
+      )}
     </Box>
-  )
+  );
 }
 
-export default MatchingPage
+export default MatchingPage;

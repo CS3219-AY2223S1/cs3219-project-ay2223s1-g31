@@ -1,11 +1,13 @@
 import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
+import morgan from "morgan";
 import {
   createUser,
   deleteUser,
   login,
   logout,
+  updateUserPassword,
 } from "./controller/user-controller.js";
 import { authenticateToken } from "./middlewares/authenticateToken.js";
 
@@ -21,6 +23,7 @@ app.use(
   })
 );
 app.use(cookieParser());
+app.use(morgan("dev"));
 
 const router = express.Router();
 
@@ -38,6 +41,7 @@ router.post("/", createUser);
 router.delete("/", authenticateToken, deleteUser);
 router.post("/login", login);
 router.post("/logout", logout);
+router.post("/changePassword", authenticateToken, updateUserPassword);
 
 // Protected route just for testing auth
 router.get("/protected", authenticateToken, (req, res) => {

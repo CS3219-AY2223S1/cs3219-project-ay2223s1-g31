@@ -4,8 +4,9 @@ import { validateAccessToken } from "../utils/auth.js";
 export const authenticateToken = async (req, res, next) => {
   const token = req.cookies.access_token;
   if (!token) {
+    console.log("token: " + token);
     return res
-      .sendStatus(403)
+      .status(403)
       .json({ message: "Access token required for authentication" });
   }
   const blacklistToken = await ormFindOneSession(token);

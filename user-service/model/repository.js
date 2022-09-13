@@ -33,6 +33,10 @@ export async function findAllUsers(filter, projection) {
   return await UserModel.find(filter, projection);
 }
 
+export async function updateUser(filter, update) {
+  return await UserModel.updateOne(filter, update);
+}
+
 export async function deleteUser(filter) {
   return await UserModel.findOneAndRemove(filter);
 }

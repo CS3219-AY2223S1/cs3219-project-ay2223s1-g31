@@ -17,7 +17,7 @@ import {
   STATUS_CODE_OK,
   STATUS_CODE_UNAUTHORIZED,
 } from "../constants";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../utils/AuthContext";
 import { useNavigate } from "react-router-dom";
 
@@ -25,11 +25,13 @@ import { useNavigate } from "react-router-dom";
 const LOGIN_API = URL_USER_SVC + "/login";
 
 // frontend routes
-const REDIRECT_URL = "/testing";
+const REDIRECT_URL = "/matching";
 
 function LoginPage() {
   const { setAuth } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || REDIRECT_URL;
   const [formValue, setFormValue] = useState({
     username: "",
     password: "",
@@ -130,7 +132,7 @@ function LoginPage() {
         </DialogContent>
         <DialogActions>
           {isLoginSuccess ? (
-            <Button component={Link} to={REDIRECT_URL}>
+            <Button component={Link} to={from}>
               Log in
             </Button>
           ) : (
