@@ -5,6 +5,7 @@ import {
   Navigate,
 } from "react-router-dom";
 import SignupPage from "./components/SignupPage";
+import MatchingPage from './components/MatchingPage'
 import { Box } from "@mui/material";
 import LoginPage from "./components/LoginPage";
 import TestingPage from "./components/TestingPage";
@@ -23,6 +24,7 @@ function App() {
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
             <Route path="/testing" element={<TestingPage />} />
+            <Route path="/matching" element={<MatchingPage/>}/>
           </Routes>
         </Router>
       </Box>
