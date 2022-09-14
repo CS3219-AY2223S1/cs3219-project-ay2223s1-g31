@@ -18,7 +18,7 @@ app.use('/api/matching', router).all((_, res) => {
     res.setHeader('Access-Control-Allow-Origin', '*')
 })
 
-router.get('/', (_, res) => res.send('Hello World from matching-service'))
+router.get('/', (_, res) => res.sendFile('index.html', { root: "View" }))
 router.post('/', createMatch)
 
 const PORT = process.env.PORT || 8001
@@ -31,5 +31,9 @@ io.get().on('connection', (socket) => {
     socket.on('code-event1', ({ room_id, new_code }) => {
         io.get().sockets.in(room_id).emit('code-event', { new_code })
     })
+
+    socket.on('chat message', (msg) => {
+      io.get().sockets.emit('chat message', msg);
+    });
 })
 httpServer.listen(PORT, () => console.log(`matching-service listening on port ${PORT}`))
