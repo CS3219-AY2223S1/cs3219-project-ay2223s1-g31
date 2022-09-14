@@ -2,7 +2,7 @@ import { Server } from 'socket.io'
 
 let io
 export default {
-  into: (httpServer) => {
+  init: (httpServer) => {
     io = new Server(httpServer, {
       cors: {
         origin: '*',
