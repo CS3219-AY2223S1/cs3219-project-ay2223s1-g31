@@ -1,22 +1,17 @@
 import express from 'express';
 import cors from 'cors';
 import { createServer } from 'http';
-import { Server } from 'socket.io';
 
 const app = express();
-const server = createServer(app);
-const io = new Server(server);
+app.use(express.urlencoded({ extended: true }))
+app.use(express.json())
+app.use(cors()) // config cors so that front-end can use
+app.options('*', cors())
 
 app.get('/', (req, res) => {
-  res.sendFile('index.html', { root: "View" });
+    res.send('Hello World from matching-service');
 });
 
-io.on('connection', (socket) => {
-  socket.on('chat message', (msg) => {
-    io.emit('chat message', msg);
-  });
-});
+const httpServer = createServer(app)
 
-server.listen(8001, () => {
-  console.log('listening on *:8001');
-});
+httpServer.listen(8001);
