@@ -1,8 +1,5 @@
 import { createContext, useEffect, useState } from "react";
 import { useContext } from "react";
-import { useNavigate } from "react-router-dom";
-import axios from "../api/axios";
-import { URL_USER_SVC } from "../configs";
 
 const AUTH_KEY = "react_app_auth";
 
@@ -20,15 +17,17 @@ export const AuthContextProvider = ({ children }) => {
   };
 
   useEffect(() => {
-    const storedAuth = window.localStorage.getItem(AUTH_KEY);
-    try {
-      const parsedAuth = JSON.parse(storedAuth);
-      if (!!parsedAuth) {
-        setAuth(parsedAuth);
+    (async () => {
+      const storedAuth = window.localStorage.getItem(AUTH_KEY);
+      try {
+        const parsedAuth = JSON.parse(storedAuth);
+        if (!!parsedAuth) {
+          setAuth(parsedAuth);
+        }
+      } catch (err) {
+        console.log(err);
       }
-    } catch (err) {
-      console.log("Access token error!");
-    }
+    })();
   }, []);
 
   useEffect(() => {

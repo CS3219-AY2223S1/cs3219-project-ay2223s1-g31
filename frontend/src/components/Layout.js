@@ -59,7 +59,14 @@ function Layout({ children }) {
           </Toolbar>
         </Container>
       </AppBar>
-      <Container fixed sx={{ padding: "6rem 0 1rem 0" }}>
+      <Container
+        fixed
+        sx={{
+          padding: "6rem 10px 1rem 10px",
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
         {children}
       </Container>
     </>

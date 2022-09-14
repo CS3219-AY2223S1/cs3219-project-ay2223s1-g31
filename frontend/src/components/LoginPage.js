@@ -26,6 +26,7 @@ const LOGIN_API = URL_USER_SVC + "/login";
 
 // frontend routes
 const REDIRECT_URL = "/matching";
+const SIGNUP_URL = "/signup";
 
 function LoginPage() {
   const { setAuth } = useAuth();
@@ -81,7 +82,12 @@ function LoginPage() {
   const closeDialog = () => setDialog((dialog) => ({ ...dialog, open: false }));
 
   return (
-    <Box display={"flex"} flexDirection={"column"} width={"30%"}>
+    <Box
+      display={"flex"}
+      flexDirection={"column"}
+      width={"100%"}
+      maxWidth={"400px"}
+    >
       <Typography variant="h3" mb={"2rem"}>
         Login
       </Typography>
@@ -113,10 +119,18 @@ function LoginPage() {
         type="password"
         sx={{ marginBottom: "2rem" }}
       />
-      <Box display={"flex"} flexDirection={"row"} justifyContent={"flex-end"}>
+      <Box
+        display={"flex"}
+        alignItems={"center"}
+        gap={"20px"}
+        flexWrap={"wrap"}
+      >
         <Button variant={"outlined"} onClick={handleLogin}>
           Login
         </Button>
+        <Typography>
+          New user? Please <Link to={SIGNUP_URL}>sign up</Link>
+        </Typography>
       </Box>
 
       <Dialog

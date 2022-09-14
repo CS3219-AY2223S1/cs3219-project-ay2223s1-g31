@@ -19,6 +19,8 @@ import {
 } from "../constants";
 import { Link } from "react-router-dom";
 
+const LOGIN_URL = "/login";
+
 function SignupPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -62,7 +64,12 @@ function SignupPage() {
   };
 
   return (
-    <Box display={"flex"} flexDirection={"column"} width={"30%"}>
+    <Box
+      display={"flex"}
+      flexDirection={"column"}
+      width={"100%"}
+      maxWidth={"400px"}
+    >
       <Typography variant={"h3"} marginBottom={"2rem"}>
         Sign Up
       </Typography>
@@ -84,10 +91,18 @@ function SignupPage() {
         onChange={(e) => setPassword(e.target.value)}
         sx={{ marginBottom: "2rem" }}
       />
-      <Box display={"flex"} flexDirection={"row"} justifyContent={"flex-end"}>
+      <Box
+        display={"flex"}
+        alignItems={"center"}
+        gap={"20px"}
+        flexWrap={"wrap"}
+      >
         <Button variant={"outlined"} onClick={handleSignup}>
           Sign up
         </Button>
+        <Typography>
+          Already have an account? Please <Link to={LOGIN_URL}>login</Link>
+        </Typography>
       </Box>
 
       <Dialog open={isDialogOpen} onClose={closeDialog}>
