@@ -12,13 +12,14 @@ app.use(cors()) // config cors so that front-end can use
 app.options('*', cors())
 
 const router = express.Router()
-router.get('/', (req, res) => { res.send('Hello World from matching-service')})
-router.post('/', createMatch)
 
-app.use('/api/matching', router).all((req, res) => {
+app.use('/api/matching', router).all((_, res) => {
     res.setHeader('content-type', 'application/json')
     res.setHeader('Access-Control-Allow-Origin', '*')
 })
+
+router.get('/', (_, res) => res.send('Hello World from matching-service'))
+router.post('/', createMatch)
 
 const PORT = process.env.PORT || 8001
 
@@ -31,6 +32,4 @@ io.get().on('connection', (socket) => {
         io.get().sockets.in(room_id).emit('code-event', { new_code })
     })
 })
-httpServer.listen(PORT, () => {
-    console.log(`matching-service listening on port ${PORT}`)
-})
+httpServer.listen(PORT, () => console.log(`matching-service listening on port ${PORT}`))
