@@ -3,13 +3,21 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
+import { createTheme, responsiveFontSizes, ThemeProvider } from "@mui/material";
 import { AuthContextProvider } from "./utils/AuthContext";
+import { SnackbarProvider } from "notistack";
+
+const theme = responsiveFontSizes(createTheme());
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <AuthContextProvider>
-    <App />
-  </AuthContextProvider>
+  <ThemeProvider theme={theme}>
+    <SnackbarProvider>
+      <AuthContextProvider autoHideDuration={3000} preventDuplicate>
+        <App />
+      </AuthContextProvider>
+    </SnackbarProvider>
+  </ThemeProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function
