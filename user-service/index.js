@@ -38,9 +38,12 @@ app.use("/api/user", router).all((_, res) => {
 router.get("/ping", (_, res) => res.send("Hello World from user-service"));
 
 router.post("/", createUser);
-router.delete("/", authenticateToken, deleteUser);
 router.post("/login", login);
 router.post("/logout", logout);
+router.post("/verifyToken", authenticateToken, (_, res) =>
+  res.status(200).send("Valid token!")
+);
+router.delete("/", authenticateToken, deleteUser);
 router.post("/changePassword", authenticateToken, updateUserPassword);
 
 // Protected route just for testing auth
