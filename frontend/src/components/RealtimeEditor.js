@@ -1,0 +1,28 @@
+import React from "react";
+import CodeMirror from "@uiw/react-codemirror";
+import { javascript } from "@codemirror/lang-javascript";
+import { python } from "@codemirror/lang-python";
+
+function RealtimeEditor({ value, onChange }) {
+  const handleChange = (value, viewUpdate) => {
+    onChange(value);
+    // console.log(viewUpdate);
+  };
+
+  return (
+    <>
+      <CodeMirror
+        value={value}
+        onChange={handleChange}
+        theme="dark"
+        editable={true}
+        height={"400px"}
+        placeholder={"Enter your code here..."}
+        basicSetup={true}
+        extensions={[python()]}
+      />
+    </>
+  );
+}
+
+export default RealtimeEditor;
