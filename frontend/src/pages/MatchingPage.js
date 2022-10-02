@@ -7,8 +7,13 @@ import {
   LinearProgress,
   Radio,
   RadioGroup,
+  TextField,
 } from "@mui/material";
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "../api/axios";
+import { URL_COLLAB_SVC } from "../configs";
+import { useAuth } from "../utils/AuthContext";
 
 const Difficulty = {
   EASY: "easy",
@@ -74,6 +79,50 @@ function MatchingPage() {
           <Button onClick={() => setIsFinding(false)}>Cancel</Button>
         </Box>
       )}
+      <CollabRoomTest />
+    </Box>
+  );
+}
+
+function CollabRoomTest() {
+  const navigate = useNavigate();
+  const [roomId, setRoomId] = useState("");
+  const { auth } = useAuth();
+  const handleCreateRoom = async () => {
+    try {
+      const response = await axios.post(URL_COLLAB_SVC + "/room", {
+        username: auth.username,
+      });
+      const roomId = response.data.roomId;
+      navigate(`/room/${roomId}`, { replace: true });
+    } catch (err) {
+      console.err(err);
+    }
+  };
+  const handleJoinRoom = async (roomId) => {
+    try {
+      const response = await axios.get(URL_COLLAB_SVC + "/room/" + roomId);
+      if (!response.data.exists) {
+        console.log(response);
+        return;
+      }
+      navigate(`/room/${roomId}`, { replace: true });
+    } catch (err) {
+      console.error(err);
+    }
+  };
+  return (
+    <Box display={"flex"} alignItems={"center"} mt={2}>
+      <TextField
+        value={roomId}
+        onChange={(e) => setRoomId(e.target.value)}
+        label={"Enter room id..."}
+      />
+      <Button
+        onClick={() => (!!roomId ? handleJoinRoom(roomId) : handleCreateRoom())}
+      >
+        Join
+      </Button>
     </Box>
   );
 }

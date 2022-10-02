@@ -1,11 +1,12 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import SignupPage from "./components/SignupPage";
-import MatchingPage from "./components/MatchingPage";
-import LoginPage from "./components/LoginPage";
-import ProfilePage from "./components/ProfilePage";
+import SignupPage from "./pages/SignupPage";
+import MatchingPage from "./pages/MatchingPage";
+import LoginPage from "./pages/LoginPage";
+import ProfilePage from "./pages/ProfilePage";
 import Layout from "./components/Layout";
-import HomePage from "./components/HomePage";
+import HomePage from "./pages/HomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import RoomPage from "./pages/RoomPage";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/matching" element={<MatchingPage />} />
+              <Route path="/room/:roomId" element={<RoomPage />} />
             </Route>
             <Route exact path="/" element={<HomePage />} />
             <Route path="/signup" element={<SignupPage />} />
