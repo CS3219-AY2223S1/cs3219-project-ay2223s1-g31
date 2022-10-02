@@ -6,6 +6,7 @@ import ProfilePage from "./components/ProfilePage";
 import Layout from "./components/Layout";
 import HomePage from "./components/HomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Chat from "./components/Chat";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
             <Route exact path="/" element={<HomePage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/chat" element={<Chat />} />
           </Routes>
         </Layout>
       </Router>
