@@ -17,7 +17,7 @@ function App() {
             <Route element={<ProtectedRoute />}>
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="/matching" element={<MatchingPage />} />
-              <Route path="/room" element={<RoomPage />} />
+              <Route path="/room/:roomId" element={<RoomPage />} />
             </Route>
             <Route exact path="/" element={<HomePage />} />
             <Route path="/signup" element={<SignupPage />} />
