@@ -9,11 +9,12 @@ import {
   RadioGroup,
   TextField,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
-import { URL_COLLAB_SVC } from "../configs";
+import { URI_MATCH_SVC, URL_MATCH_SVC, URL_COLLAB_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
+import socket from "../socket.js"
 
 const Difficulty = {
   EASY: "easy",
@@ -23,34 +24,42 @@ const Difficulty = {
 };
 
 function MatchingPage() {
-  const [difficulty, setDifficulty] = useState(Difficulty.NONE);
-  const [isFinding, setIsFinding] = useState(false);
+  const navigate = useNavigate()
+  const { auth } = useAuth()
+  const [difficulty, setDifficulty] = useState(Difficulty.NONE)
+  const [matchFound, setMatchFound] = useState(false)
 
-  const handleDifficultyChange = (e) => {
-    setDifficulty(e.target.value);
-  };
-
-  const handleFindMatch = (e) => {
-    e.preventDefault();
-
-    if (difficulty === Difficulty.NONE) {
-      // error handling
-      return;
+  const handleCreateMatch = async () => {
+    try {
+      setIsFinding(true);
+      socket.init(URI_MATCH_SVC);
+      socket.get().on("connect", async () => {
+        await axios.post(URL_MATCH_SVC, {
+          username: "",
+          difficulty: difficulty,
+          start_time: new Date().getTime(),
+          socket_id: socket.get().id,
+        })
+      })
+      socket.get().on("matchSuccess", async (data) => {
+        console.log("Matched, room id is: " + data.roomId)
+        storage.setItem("room_id", data.roomId)
+        navigate("/collab")
+      })
+    } catch (err) {
+      console.err(err);
     }
-
-    setIsFinding(true);
   };
 
   return (
     <Box>
-      <form onSubmit={handleFindMatch}>
+      <form onSubmit={handleCreateMatch}>
         <FormControl>
           <FormLabel>Difficulty</FormLabel>
           <RadioGroup
             name="difficulty-selector-group"
             value={difficulty}
-            onChange={handleDifficultyChange}
-          >
+            onChange={(e) => setDifficulty(e.target.value)}>
             <FormControlLabel
               value={Difficulty.EASY}
               control={<Radio />}
@@ -72,11 +81,11 @@ function MatchingPage() {
           </Button>
         </FormControl>
       </form>
-      {isFinding && (
+      {matchFound && (
         <Box>
           <Box>Finding Match ...</Box>
           <LinearProgress />
-          <Button onClick={() => setIsFinding(false)}>Cancel</Button>
+          <Button onClick={() => setMatchFound(false)}>Cancel</Button>
         </Box>
       )}
       <CollabRoomTest />
