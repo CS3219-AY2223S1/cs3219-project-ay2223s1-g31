@@ -52,32 +52,6 @@ function MatchingPage() {
     }
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const response = await axios.get(URL_MATCH_SVC)
-        if (!response.data.exists) {
-          setMatchFound(false)
-          return
-        }
-        setMatchFound(true)
-      } catch (err) {
-        setMatchFound(false)
-        console.log(err)
-      }
-    })()
-  })
-
-  useEffect(() => {
-    const socket = io(URI_MATCH_SVC, {
-      transports: ["websocket"],
-    })
-    setSocket(socket)
-    socket.on("connect", () => {
-      socket.emit("connected", )
-    })
-  }, [])
-
   return (
     <Box>
       <form onSubmit={handleCreateMatch}>
