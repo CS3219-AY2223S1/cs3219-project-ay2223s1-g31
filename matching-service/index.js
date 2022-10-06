@@ -1,5 +1,6 @@
 import express from "express"
 import cors from "cors"
+import morgan from "morgan"
 import http from "http"
 import { Server } from "socket.io"
 import { createMatchEntry } from "./controller/match-controller.js"
@@ -19,6 +20,7 @@ app.use(
     credentials: true,
   })
 )
+app.use(morgan("dev"));
 
 const router = express.Router();
 

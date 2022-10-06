@@ -10,11 +10,11 @@ import {
   TextField,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
+import io from "socket.io-client";
 import { useNavigate } from "react-router-dom";
 import axios from "../api/axios";
 import { URI_MATCH_SVC, URL_MATCH_SVC, URL_COLLAB_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
-import socket from "../socket.js"
 
 const Difficulty = {
   EASY: "easy",
@@ -25,12 +25,14 @@ const Difficulty = {
 
 function MatchingPage() {
   const navigate = useNavigate()
+  const [socket, setSocket] = useState(null)
   const [difficulty, setDifficulty] = useState(Difficulty.NONE)
   const [matchFound, setMatchFound] = useState(false)
 
   const handleCreateMatch = async () => {
-      try {
-      socket.init(URI_MATCH_SVC);
+    try {
+      console.log("here in handle create match")
+      socket.init(URI_MATCH_SVC)
       socket.get().on("connect", async () => {
         await axios.post(URL_MATCH_SVC, {
           username: "",
@@ -49,6 +51,32 @@ function MatchingPage() {
       console.err(err);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      try {
+        const response = await axios.get(URL_MATCH_SVC)
+        if (!response.data.exists) {
+          setMatchFound(false)
+          return
+        }
+        setMatchFound(true)
+      } catch (err) {
+        setMatchFound(false)
+        console.log(err)
+      }
+    })()
+  })
+
+  useEffect(() => {
+    const socket = io(URI_MATCH_SVC, {
+      transports: ["websocket"],
+    })
+    setSocket(socket)
+    socket.on("connect", () => {
+      socket.emit("connected", )
+    })
+  }, [])
 
   return (
     <Box>
