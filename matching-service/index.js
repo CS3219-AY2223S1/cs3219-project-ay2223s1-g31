@@ -1,40 +1,43 @@
-import express from "express";
-import cors from "cors";
-import { createServer } from "http";
+import express from "express"
+import cors from "cors"
+import http from "http"
+import { Server } from "socket.io"
+import { createMatchEntry } from "./controller/match-controller.js"
 
-import io from "./socket.js";
-import { createMatchEntry } from "./controller/match-controller.js";
+const FRONTEND_ORIGIN = "http://localhost:3000";
+const PORT = process.env.PORT || 8001;
 
 const app = express();
-const PORT = process.env.PORT || 8001;
-const corsObject = {
-  origin: true,
-  credentials: true,
-};
+const server = http.createServer(app)
+const io = new Server(server)
 
-app.use(express.urlencoded({ extended: true }));
+app.use(express.urlencoded({ extended: true }))
 app.use(express.json());
-app.use(cors(corsObject)); // config cors so that front-end can use
-app.options("*", cors(corsObject));
+app.use(
+  cors({
+    origin: FRONTEND_ORIGIN,
+    credentials: true,
+  })
+)
 
 const router = express.Router();
-router.get("/", (_, res) => res.send("Hello World from matching-service"));
-router.post("/", createMatchEntry);
 
 app.use("/api/matching", router).all((_, res) => {
   res.setHeader("content-type", "application/json");
   res.setHeader("Access-Control-Allow-Origin", "*");
-});
+})
 
-const httpServer = createServer(app);
-io.init(httpServer);
-io.get().on("connection", (socket) => {
-  console.log(`New Client connected ${socket.id}`);
+router.get("/ping", (_, res) => res.send("Hello World from matching-service"))
 
+router.post("/", createMatchEntry)
+
+io.on("connection", (socket) => {
+  console.log(`Connected ${socket.id}`);
   socket.on("code-event1", ({ room_id, newCode }) => {
-    io.get().sockets.in(room_id).emit("code-event", { newCode });
-  });
-});
-httpServer.listen(PORT, () =>
+    io.get().sockets.in(room_id).emit("code-event", { newCode })
+  })
+})
+
+server.listen(PORT, () =>
   console.log(`matching-service listening on port ${PORT}`)
-);
+)
