@@ -25,13 +25,11 @@ const Difficulty = {
 
 function MatchingPage() {
   const navigate = useNavigate()
-  const { auth } = useAuth()
   const [difficulty, setDifficulty] = useState(Difficulty.NONE)
   const [matchFound, setMatchFound] = useState(false)
 
   const handleCreateMatch = async () => {
-    try {
-      setMatchFound(true);
+      try {
       socket.init(URI_MATCH_SVC);
       socket.get().on("connect", async () => {
         await axios.post(URL_MATCH_SVC, {
@@ -46,6 +44,7 @@ function MatchingPage() {
         localStorage.setItem("room_id", data.roomId)
         navigate("/collab")
       })
+      setMatchFound(true);
     } catch (err) {
       console.err(err);
     }
