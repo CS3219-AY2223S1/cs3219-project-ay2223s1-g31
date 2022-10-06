@@ -31,7 +31,7 @@ function MatchingPage() {
 
   const handleCreateMatch = async () => {
     try {
-      setIsFinding(true);
+      setMatchFound(true);
       socket.init(URI_MATCH_SVC);
       socket.get().on("connect", async () => {
         await axios.post(URL_MATCH_SVC, {
@@ -43,7 +43,7 @@ function MatchingPage() {
       })
       socket.get().on("matchSuccess", async (data) => {
         console.log("Matched, room id is: " + data.roomId)
-        storage.setItem("room_id", data.roomId)
+        localStorage.setItem("room_id", data.roomId)
         navigate("/collab")
       })
     } catch (err) {
