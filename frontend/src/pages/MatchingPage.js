@@ -11,7 +11,7 @@ import {
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
 import io from "socket.io-client";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import axios from "../api/axios";
 import { URI_MATCH_SVC, URL_MATCH_SVC, URL_COLLAB_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
@@ -25,9 +25,20 @@ const Difficulty = {
 
 function MatchingPage() {
   const navigate = useNavigate()
+  const location = useLocation()
+  const match_timeout = 30
+  let username = ""
+
   const [socket, setSocket] = useState(null)
   const [difficulty, setDifficulty] = useState(Difficulty.NONE)
   const [matchFound, setMatchFound] = useState(false)
+  const [timer, setTimer] = useState(-1)
+
+  const handleDifficultyChange = (e) => {
+    setDifficulty(e.target.value)
+    socket.emit('find-match', difficulty, username)
+    setTimer(match_timeout)
+  }
 
   const handleCreateMatch = async () => {
     try {
@@ -50,7 +61,31 @@ function MatchingPage() {
     } catch (err) {
       console.err(err);
     }
-  };
+  }
+
+  useEffect(() => {
+    if (location.state != null && location.state.username != null) {
+      username = location.state.username
+    }
+  })
+
+  useEffect(() => {
+    socket.on('match-found', message => {
+      handleCreateMatch(message.roommates)
+    })
+    return () => {
+      socket.off('match-found')
+    }
+  }, [difficulty])
+
+  useEffect(() => {
+    if (timer > 0) {
+      setTimeout(() => setTimer(timer - 1), 1000)
+    } else if (timer == 0) {
+      socket.emit('disconnet-match')
+      setMatchFound(false)
+    }
+  })
 
   return (
     <Box>
@@ -60,7 +95,7 @@ function MatchingPage() {
           <RadioGroup
             name="difficulty-selector-group"
             value={difficulty}
-            onChange={(e) => setDifficulty(e.target.value)}>
+            onChange={handleDifficultyChange}>
             <FormControlLabel
               value={Difficulty.EASY}
               control={<Radio />}
