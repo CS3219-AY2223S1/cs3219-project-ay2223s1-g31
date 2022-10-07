@@ -26,9 +26,4 @@ router.get('/3', getHQ)
 // post question
 router.post('/', createQ)
 
-// delete question
-router.post('/:id', (req, res) => {
-    res.json({mssg: 'Delete question'})
-})
-
 module.exports = router

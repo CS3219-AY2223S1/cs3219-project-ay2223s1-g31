@@ -38,8 +38,6 @@ const createQ = async (req, res) => {
     catch (error) { res.status(400).json({error: error.message}) }
 }
 
-// delete question
-
 module.exports = {
     getEQ, 
     createQ, 
