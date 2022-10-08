@@ -1,16 +1,21 @@
 import React, { useState, useEffect, useCallback } from "react";
 import io from "socket.io-client";
 import { debounce } from "lodash";
-import { useParams } from "react-router-dom";
-import { Box, Typography } from "@mui/material";
+import { useNavigate, useParams } from "react-router-dom";
+import { useConfirm } from "material-ui-confirm";
+import { Box, Button, Typography } from "@mui/material";
 import { URI_COLLAB_SVC, URL_COLLAB_SVC } from "../configs";
 import RealtimeEditor from "../components/RealtimeEditor";
 import { useAuth } from "../utils/AuthContext";
 import axios from "../api/axios";
+import { useSnackbar } from "notistack";
 
 function RoomPage() {
   const { roomId } = useParams();
+  const navigate = useNavigate();
   const { auth } = useAuth();
+  const confirm = useConfirm();
+  const { enqueueSnackbar } = useSnackbar();
   const initialCode = "def add(a, b):\n    return a + b\n\nprint(add(2, 3))";
   const [socket, setSocket] = useState(null);
   const [question, setQuestion] = useState(null);
@@ -30,6 +35,29 @@ function RoomPage() {
     if (!viewUpdate.state.values[0].prevUserEvent) return;
     console.log("user input");
     emitCodeChangeDebounced(socket, value);
+  };
+
+  const leaveRoom = async () => {
+    try {
+      const res = await axios.delete(URL_COLLAB_SVC + "/room/" + roomId);
+      socket.emit("leave-room", { roomId, username: auth.username });
+      navigate("/matching", { replace: true });
+    } catch (err) {
+      enqueueSnackbar(err.response.data.message, { variant: "error" });
+      console.log(err);
+    }
+  };
+
+  const handleLeaveRoom = () => {
+    confirm({
+      title: "Leave room?",
+      description: "Are you sure you want to leave room?",
+      confirmationText: "Leave",
+    })
+      .then(() => {
+        leaveRoom();
+      })
+      .catch(() => {});
   };
 
   useEffect(() => {
@@ -65,6 +93,10 @@ function RoomPage() {
     socket.on("code-changed", (code) => {
       setCode(code);
     });
+    socket.on("leave-room", () => {
+      enqueueSnackbar("Your peer left the session");
+      navigate("/matching", { replace: true });
+    });
   }, []);
 
   return roomFound ? (
@@ -78,6 +110,9 @@ function RoomPage() {
       </Typography>
       <Typography>{question.question}</Typography>
       <RealtimeEditor value={code} onChange={handleOnEditorChange} />
+      <Button color="error" onClick={handleLeaveRoom}>
+        Leave room
+      </Button>
     </Box>
   ) : (
     <RoomNotFound />

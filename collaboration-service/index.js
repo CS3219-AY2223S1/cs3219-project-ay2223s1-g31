@@ -4,10 +4,15 @@ import morgan from "morgan";
 import http from "http";
 import { Server } from "socket.io";
 import chalk from "chalk";
-import { createRoom, getRoomInfo } from "./controllers/room-controller.js";
+import {
+  createRoom,
+  deleteRoom,
+  getRoomInfo,
+} from "./controllers/room-controller.js";
 import { roomConnectHandler } from "./handlers/room-connect-handler.js";
 import { disconnectHandler } from "./handlers/disconnect-handler.js";
 import { codeChangeHandler } from "./handlers/code-change-handler.js";
+import { leaveRoomHandler } from "./handlers/leave-room-handler.js";
 
 const FRONTEND_ORIGIN = "http://localhost:3000";
 const PORT = 8050;
@@ -36,14 +41,16 @@ router.get("/ping", (_, res) =>
   res.send("Hello World from collaboration-service")
 );
 
-router.get("/room/:roomId", getRoomInfo);
 router.post("/room", createRoom);
+router.get("/room/:roomId", getRoomInfo);
+router.delete("/room/:roomId", deleteRoom);
 
 io.on("connection", (socket) => {
   console.log("Connected " + socket.id);
   socket.on("connected-to-room", roomConnectHandler(io, socket));
   socket.on("disconnect", disconnectHandler(io, socket));
   socket.on("code-changed", codeChangeHandler(io, socket));
+  socket.on("leave-room", leaveRoomHandler(io, socket));
 });
 
 server.listen(PORT, () =>

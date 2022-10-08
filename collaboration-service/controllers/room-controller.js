@@ -4,6 +4,9 @@ import {
   ormCreateRoomQuestion,
   ormGetRoomInfo,
   ormGetRoomQuestion,
+  ormDeleteAllUsersFromRoom,
+  ormDeleteRoomInfo,
+  ormGetRoomInfo,
 } from "../models/room-orm.js";
 
 export async function getRoomInfo(req, res) {
@@ -52,5 +55,28 @@ export async function createRoom(req, res) {
     return res
       .status(500)
       .json({ message: "Database failure when creating room!" });
+  }
+}
+
+export async function deleteRoom(req, res) {
+  try {
+    const { username } = req.body;
+    const { roomId } = req.params;
+
+    const resp1 = await ormDeleteRoomInfo(roomId);
+    const resp2 = await ormDeleteAllUsersFromRoom(roomId);
+
+    if (resp1.err || resp2.err) {
+      console.error(resp1.err);
+      console.error(resp2.err);
+      return res.status(400).json({ message: "Cannot delete room!" });
+    }
+
+    return res.status(200).send({ roomId });
+  } catch (err) {
+    console.error(err);
+    return res
+      .status(500)
+      .json({ message: "Database failure when deleting room!" });
   }
 }

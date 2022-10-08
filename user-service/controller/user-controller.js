@@ -111,6 +111,7 @@ export async function updateUserPassword(req, res) {
         .status(400)
         .json({ message: "New password/Old password are missing!" });
     }
+    console.log(username);
     const user = await ormFindOneByUsername(username);
     console.log(user);
     if (!user) {
