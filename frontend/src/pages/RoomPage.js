@@ -89,6 +89,9 @@ function RoomPage() {
     socket.on("room:connection", (users) => {
       setUsersInRoom(users);
     });
+    socket.on("disconnect", () => {
+      socket.emit("disconnect-from-room", { roomId });
+    });
     socket.on("code-changed", (code) => {
       setCode(code);
     });
@@ -96,6 +99,9 @@ function RoomPage() {
       enqueueSnackbar("Your peer left the session");
       navigate("/matching", { replace: true });
     });
+    return () => {
+      socket.emit("disconnect-from-room", { roomId });
+    };
   }, []);
 
   return roomFound ? (

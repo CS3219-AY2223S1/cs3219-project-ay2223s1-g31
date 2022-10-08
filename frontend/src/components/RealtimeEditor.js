@@ -4,7 +4,6 @@ import { python } from "@codemirror/lang-python";
 
 function RealtimeEditor({ value, onChange }) {
   const handleChange = (value, viewUpdate) => {
-    console.log(viewUpdate.state.values[0]);
     onChange(value, viewUpdate);
   };
 
