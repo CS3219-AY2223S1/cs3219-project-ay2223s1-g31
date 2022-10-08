@@ -11,8 +11,9 @@ import {
 } from "@mui/material";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useSnackbar } from "notistack";
 import axios from "../api/axios";
-import { URL_COLLAB_SVC } from "../configs";
+import { URL_COLLAB_SVC, URL_QUESTION_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
 
 const Difficulty = {
@@ -23,6 +24,7 @@ const Difficulty = {
 };
 
 function MatchingPage() {
+  const { enqueueSnackbar } = useSnackbar();
   const [difficulty, setDifficulty] = useState(Difficulty.NONE);
   const [isFinding, setIsFinding] = useState(false);
 
@@ -34,7 +36,7 @@ function MatchingPage() {
     e.preventDefault();
 
     if (difficulty === Difficulty.NONE) {
-      // error handling
+      enqueueSnackbar("Please choose the difficulty!", { variant: "warning" });
       return;
     }
 
@@ -79,24 +81,31 @@ function MatchingPage() {
           <Button onClick={() => setIsFinding(false)}>Cancel</Button>
         </Box>
       )}
-      <CollabRoomTest />
+      <CollabRoomTest difficulty={difficulty} />
     </Box>
   );
 }
 
-function CollabRoomTest() {
+function CollabRoomTest({ difficulty }) {
   const navigate = useNavigate();
   const [roomId, setRoomId] = useState("");
   const { auth } = useAuth();
   const handleCreateRoom = async () => {
     try {
+      if (!difficulty) {
+        console.error("No difficulty!");
+        return;
+      }
+      const response1 = await axios.get(URL_QUESTION_SVC + "/" + difficulty);
+      const question = response1.data;
       const response = await axios.post(URL_COLLAB_SVC + "/room", {
         username: auth.username,
+        question,
       });
       const roomId = response.data.roomId;
       navigate(`/room/${roomId}`, { replace: true });
     } catch (err) {
-      console.err(err);
+      console.error(err);
     }
   };
   const handleJoinRoom = async (roomId) => {
