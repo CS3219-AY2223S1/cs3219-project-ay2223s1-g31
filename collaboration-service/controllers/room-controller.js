@@ -1,5 +1,10 @@
 import { v4 } from "uuid";
-import { ormCreateRoom, ormGetRoomInfo } from "../models/room-orm.js";
+import {
+  ormCreateRoom,
+  ormCreateRoomQuestion,
+  ormGetRoomInfo,
+  ormGetRoomQuestion,
+} from "../models/room-orm.js";
 
 export async function getRoomInfo(req, res) {
   try {
@@ -8,12 +13,17 @@ export async function getRoomInfo(req, res) {
       return res.status(400).json({ message: "Room Id is missing!" });
     }
     const resp = await ormGetRoomInfo(roomId);
-    const exists = !!resp && Object.keys(resp).length != 0;
-    if (resp.err) {
+    const resp2 = await ormGetRoomQuestion(roomId);
+    const exists =
+      !!resp &&
+      Object.keys(resp).length != 0 &&
+      !!resp2 &&
+      Object.keys(resp2).length != 0;
+    if (resp.err || resp2.err) {
       console.error(resp.err);
       return res.status(400).json({ message: "Cannot get room info!" });
     }
-    return res.status(200).json({ exists, info: resp });
+    return res.status(200).json({ exists, info: resp, question: resp2 });
   } catch (err) {
     console.error(err);
     return res
@@ -24,17 +34,19 @@ export async function getRoomInfo(req, res) {
 
 export async function createRoom(req, res) {
   try {
-    const { username } = req.body;
+    const { username, question } = req.body;
     const roomId = v4();
 
     const resp = await ormCreateRoom(roomId);
+    const resp2 = await ormCreateRoomQuestion(roomId, question);
 
-    if (resp.err) {
+    if (resp.err || resp2.err) {
       console.error(resp.err);
+      console.error(resp2.err);
       return res.status(400).json({ message: "Cannot create room!" });
     }
 
-    return res.status(201).send({ roomId });
+    return res.status(201).send({ roomId, question });
   } catch (err) {
     console.error(err);
     return res

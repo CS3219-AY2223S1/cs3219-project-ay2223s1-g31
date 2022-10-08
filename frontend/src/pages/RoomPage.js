@@ -13,6 +13,7 @@ function RoomPage() {
   const { auth } = useAuth();
   const initialCode = "def add(a, b):\n    return a + b\n\nprint(add(2, 3))";
   const [socket, setSocket] = useState(null);
+  const [question, setQuestion] = useState(null);
   const [code, setCode] = useState(initialCode);
   const [usersInRoom, setUsersInRoom] = useState([]);
   const [roomFound, setRoomFound] = useState(false);
@@ -39,13 +40,16 @@ function RoomPage() {
           setRoomFound(false);
           return;
         }
+        setQuestion(response.data.question);
+        setCode(response.data.question.template);
+        console.log(response.data.question);
         setRoomFound(true);
       } catch (err) {
         setRoomFound(false);
         console.error(err);
       }
     })();
-  });
+  }, []);
 
   useEffect(() => {
     const socket = io(URI_COLLAB_SVC, {
@@ -68,6 +72,11 @@ function RoomPage() {
       <Typography variant="h2">Room</Typography>
       <Typography>Hello {auth.username}</Typography>
       <Typography>Users in room: {usersInRoom.join(", ")}</Typography>
+      <Typography>
+        Question: {question.title} ({question.difficulty}) - Tags:{" "}
+        {question.tags.join(", ")}
+      </Typography>
+      <Typography>{question.question}</Typography>
       <RealtimeEditor value={code} onChange={handleOnEditorChange} />
     </Box>
   ) : (
