@@ -2,7 +2,6 @@ import { v4 } from "uuid";
 import {
   ormCreateRoom,
   ormCreateRoomQuestion,
-  ormGetRoomInfo,
   ormGetRoomQuestion,
   ormDeleteAllUsersFromRoom,
   ormDeleteRoomInfo,

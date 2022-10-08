@@ -18,6 +18,7 @@ function RoomPage() {
   const { enqueueSnackbar } = useSnackbar();
   const initialCode = "def add(a, b):\n    return a + b\n\nprint(add(2, 3))";
   const [socket, setSocket] = useState(null);
+  const [question, setQuestion] = useState(null);
   const [code, setCode] = useState(initialCode);
   const [usersInRoom, setUsersInRoom] = useState([]);
   const [roomFound, setRoomFound] = useState(false);
@@ -32,7 +33,6 @@ function RoomPage() {
   const handleOnEditorChange = (value, viewUpdate) => {
     setCode(value);
     if (!viewUpdate.state.values[0].prevUserEvent) return;
-    console.log("user input");
     emitCodeChangeDebounced(socket, value);
   };
 
@@ -67,13 +67,16 @@ function RoomPage() {
           setRoomFound(false);
           return;
         }
+        console.log(response.data.question);
+        setQuestion(response.data.question);
+        setCode(response.data.question.template);
         setRoomFound(true);
       } catch (err) {
         setRoomFound(false);
         console.error(err);
       }
     })();
-  });
+  }, []);
 
   useEffect(() => {
     const socket = io(URI_COLLAB_SVC, {
@@ -100,6 +103,11 @@ function RoomPage() {
       <Typography variant="h2">Room</Typography>
       <Typography>Hello {auth.username}</Typography>
       <Typography>Users in room: {usersInRoom.join(", ")}</Typography>
+      <Typography>
+        Question: {question.title} ({question.difficulty}) - Tags:{" "}
+        {question.tags.join(", ")}
+      </Typography>
+      <Typography>{question.question}</Typography>
       <RealtimeEditor value={code} onChange={handleOnEditorChange} />
       <Button color="error" onClick={handleLeaveRoom}>
         Leave room
