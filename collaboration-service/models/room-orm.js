@@ -23,16 +23,6 @@ export async function ormGetRoomInfo(roomId) {
   }
 }
 
-export async function ormGetRoomQuestion(roomId) {
-  try {
-    const result = await redisClient.get(`${roomId}:question`);
-    console.log(result);
-    return result ? JSON.parse(result) : null;
-  } catch (err) {
-    return { err };
-  }
-}
-
 export async function ormGetAllUsersInRoom(roomId) {
   try {
     const result = await redisClient.sMembers(`${roomId}:users`, 0, -1);
@@ -59,21 +49,6 @@ export async function ormCreateRoom(roomId) {
       created: moment().toString(),
       updated: moment().toString(),
     });
-    // console.log(`[${result}] Created ${roomId}`);
-    return true;
-  } catch (err) {
-    return { err };
-  }
-}
-
-export async function ormCreateRoomQuestion(roomId, question) {
-  try {
-    console.log(question);
-    const result = await redisClient.set(
-      `${roomId}:question`,
-      JSON.stringify(question)
-    );
-    console.log(JSON.stringify(question));
     // console.log(`[${result}] Created ${roomId}`);
     return true;
   } catch (err) {
