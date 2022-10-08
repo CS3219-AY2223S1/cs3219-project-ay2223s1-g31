@@ -48,7 +48,7 @@ router.delete("/room/:roomId", deleteRoom);
 io.on("connection", (socket) => {
   console.log("Connected " + socket.id);
   socket.on("connected-to-room", roomConnectHandler(io, socket));
-  socket.on("disconnect", disconnectHandler(io, socket));
+  socket.on("disconnect-from-room", disconnectHandler(io, socket));
   socket.on("code-changed", codeChangeHandler(io, socket));
   socket.on("leave-room", leaveRoomHandler(io, socket));
 });
