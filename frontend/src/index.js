@@ -22,8 +22,8 @@ root.render(
     <ConfirmProvider
       defaultOptions={{ confirmationButtonProps: { color: "error" } }}
     >
-      <SnackbarProvider>
-        <AuthContextProvider autoHideDuration={3000} preventDuplicate>
+      <SnackbarProvider autoHideDuration={3000} preventDuplicate>
+        <AuthContextProvider>
           <CssBaseline />
           <App />
         </AuthContextProvider>
