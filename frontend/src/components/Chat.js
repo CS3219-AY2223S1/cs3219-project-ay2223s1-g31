@@ -40,17 +40,36 @@ function Chat() {
     socket.emit('join-room', roomId)
   }, [])
 
+  const getChatMessages = () => {
+    return messages.map((msg, id) =>
+      <ListItem key={id}>
+        <ListItemText primary={msg.text} secondary={msg.user}/>
+      </ListItem>
+    )
+  }
+
   return (
-    <Box>
-      <List>
-        {messages.map((msg, id) => 
-          <ListItem key={id}>
-            <ListItemText primary={msg.text} secondary={msg.user}/>
-          </ListItem>
-        )}
-      </List>
-      <TextField id="message-input" label="Message" variant='outlined' value={inputMessage} onChange={(e) => setInputMessage(e.target.value)} />
-      <Button variant='contained' onClick={sendMessage}>SEND</Button>
+    <Box
+    sx={{
+      height: '75%',
+      width: '40%'
+    }}
+    >
+      <Box
+        sx={{
+          bgcolor: 'grey.50',
+          borderRadius: '16px',
+          minHeight: '80%'
+        }}
+      >
+        <List>
+          {getChatMessages()}
+        </List>
+      </Box>
+      <Box sx={{ display: 'flex' }}>
+        <TextField sx={{ flexGrow: 3 }} id="message-input" label="Message" variant='outlined' value={inputMessage} onChange={(e) => setInputMessage(e.target.value)} />
+        <Button variant='contained' onClick={sendMessage}>SEND</Button>
+      </Box>
     </Box>
   )
 }
