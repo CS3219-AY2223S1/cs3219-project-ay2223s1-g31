@@ -5,10 +5,23 @@ import {
   Typography,
   Box,
   Button,
+  Avatar,
+  IconButton,
+  Menu,
+  MenuItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
-import React from "react";
-import { Link } from "react-router-dom";
+import { useSnackbar } from "notistack";
+import React, { useState } from "react";
+import { Link, NavLink, useNavigate } from "react-router-dom";
+import AccountBoxIcon from "@mui/icons-material/AccountBox";
+import LogoutIcon from "@mui/icons-material/Logout";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 import { useAuth } from "../utils/AuthContext";
+import { stringAvatar } from "../utils/avatar-utils";
+import { useDarkTheme } from "../theme/ThemeContextProvider";
 
 const contentPages = [
   { name: "Matching", link: "/matching" },
@@ -20,8 +33,32 @@ const authPages = [
 ];
 
 function Layout({ children }) {
-  const { auth } = useAuth();
+  const navigate = useNavigate();
+  const { enqueueSnackbar } = useSnackbar();
+  const [anchorEl, setAnchorEl] = useState(null);
+  const { isDarkTheme, changeToDarkTheme } = useDarkTheme();
+  const menuOpen = !!anchorEl;
+  const { auth, logout } = useAuth();
   const pages = auth.username ? contentPages : authPages;
+
+  const handleAvatarClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleLoggingOut = async () => {
+    setAnchorEl(null);
+    try {
+      logout();
+      navigate("/login");
+    } catch (err) {
+      enqueueSnackbar(err.response.data.message, { variant: "error" });
+      console.log(err);
+    }
+  };
 
   return (
     <>
@@ -55,7 +92,49 @@ function Layout({ children }) {
                 </Button>
               ))}
             </Box>
-            {auth.username && <Box>Hi, {auth.username}</Box>}
+            {auth.username && (
+              <Box display={"flex"} gap={1} alignItems={"center"}>
+                <span>Hi, {auth.username}</span>
+                <IconButton onClick={handleAvatarClick}>
+                  <Avatar
+                    {...stringAvatar(auth.username)}
+                    sx={{ width: 30, height: 30, fontSize: 14 }}
+                  />
+                </IconButton>
+                <Menu
+                  open={menuOpen}
+                  anchorEl={anchorEl}
+                  onClose={handleMenuClose}
+                  anchorOrigin={{
+                    vertical: "bottom",
+                    horizontal: "left",
+                  }}
+                >
+                  <MenuItem component={NavLink} to={"/profile"} replace>
+                    <ListItemIcon>
+                      <AccountBoxIcon />
+                    </ListItemIcon>
+                    <ListItemText>Profile</ListItemText>
+                  </MenuItem>
+                  <MenuItem onClick={() => changeToDarkTheme(!isDarkTheme)}>
+                    <ListItemIcon>
+                      {isDarkTheme ? <LightModeIcon /> : <DarkModeIcon />}
+                    </ListItemIcon>
+                    <ListItemText>
+                      {isDarkTheme
+                        ? "Switch to light theme"
+                        : "Switch to dark theme"}
+                    </ListItemText>
+                  </MenuItem>
+                  <MenuItem onClick={handleLoggingOut}>
+                    <ListItemIcon>
+                      <LogoutIcon />
+                    </ListItemIcon>
+                    <ListItemText>Logout</ListItemText>
+                  </MenuItem>
+                </Menu>
+              </Box>
+            )}
           </Toolbar>
         </Container>
       </AppBar>

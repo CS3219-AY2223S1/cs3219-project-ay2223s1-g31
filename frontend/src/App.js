@@ -7,7 +7,7 @@ import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Chat from "./components/Chat";
-import RoomPage from "./pages/RoomPage"
+import RoomPage from "./pages/RoomPage";
 
 function App() {
   return (

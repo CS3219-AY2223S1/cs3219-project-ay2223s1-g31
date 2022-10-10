@@ -6,17 +6,27 @@ import {
   DialogContent,
   DialogActions,
   TextField,
+  Paper,
+  Avatar,
+  ListItem,
+  ListItemIcon,
+  ListItemText,
 } from "@mui/material";
+import PersonIcon from "@mui/icons-material/Person";
+import EventIcon from "@mui/icons-material/Event";
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import moment from "moment";
 import axios from "../api/axios";
 import { URL_USER_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
 import { useSnackbar } from "notistack";
 import { useConfirm } from "material-ui-confirm";
+import { stringAvatar } from "../utils/avatar-utils";
+import { Box } from "@mui/system";
 
 function ProfilePage() {
-  const { auth, clearAuth } = useAuth();
+  const { auth, logout } = useAuth();
   const navigate = useNavigate();
   const { enqueueSnackbar } = useSnackbar();
   const confirm = useConfirm();
@@ -60,18 +70,6 @@ function ProfilePage() {
       .catch(() => {});
   };
 
-  const handleLoggingOut = async () => {
-    try {
-      const res = await axios.post(URL_USER_SVC + "/logout");
-      console.log(res);
-      clearAuth();
-      navigate("/login");
-    } catch (err) {
-      enqueueSnackbar(err.response.data.message, { variant: "error" });
-      console.log(err);
-    }
-  };
-
   const handleChangePassword = async () => {
     if (formValue.newPassword !== formValue.confirmNewPassword) {
       enqueueSnackbar("New password and confirm new password does not match!", {
@@ -81,7 +79,7 @@ function ProfilePage() {
     }
     try {
       const res = await axios.post(URL_USER_SVC + "/changePassword", formValue);
-      handleLoggingOut();
+      logout();
       console.log(res);
       navigate("/login");
     } catch (err) {
@@ -91,16 +89,58 @@ function ProfilePage() {
   };
 
   return (
-    <div>
+    <Box width={"100%"} maxWidth={900}>
       <Typography variant={"h3"} mb={"2rem"}>
         Profile
       </Typography>
-      <Typography mb={2}>Username: {auth.username}</Typography>
-      <Button onClick={handleLoggingOut}>Logout</Button>
-      <Button onClick={() => setDialogOpen(true)}>Change password</Button>
-      <Button color="error" onClick={handleDeleteAccount}>
-        Delete account
-      </Button>
+      <Paper
+        // elevation={3}
+        variant={"outlined"}
+        sx={{
+          width: "100%",
+          display: "flex",
+          padding: 8,
+          paddingTop: 5,
+          paddingBottom: 5,
+          justifyContent: "flex-start",
+          alignItems: "center",
+          gap: 6,
+          borderRadius: 2,
+        }}
+      >
+        <Avatar
+          {...stringAvatar(auth?.username)}
+          sx={{ width: 160, height: 160, fontSize: 64 }}
+        />
+        <Box>
+          <ListItem>
+            <ListItemIcon>
+              <PersonIcon fontSize={"large"} />
+            </ListItemIcon>
+            <ListItemText>
+              <Typography fontSize={22}>@{auth.username}</Typography>
+            </ListItemText>
+          </ListItem>
+
+          <ListItem>
+            <ListItemIcon>
+              <EventIcon fontSize={"large"} />
+            </ListItemIcon>
+            <ListItemText>
+              <Typography fontSize={22}>
+                Joined on{" "}
+                {moment(auth.createdAt).format("MMM DD YYYY").toString()}
+              </Typography>
+            </ListItemText>
+          </ListItem>
+        </Box>
+      </Paper>
+      <Box display={"flex"} justifyContent={"flex-end"} gap={1} mt={1}>
+        <Button onClick={() => setDialogOpen(true)}>Change password</Button>
+        <Button color="error" onClick={handleDeleteAccount}>
+          Delete account
+        </Button>
+      </Box>
       <Dialog
         open={dialogOpen}
         onClose={handleDialogClose}
@@ -160,7 +200,7 @@ function ProfilePage() {
           </Button>
         </DialogActions>
       </Dialog>
-    </div>
+    </Box>
   );
 }
 

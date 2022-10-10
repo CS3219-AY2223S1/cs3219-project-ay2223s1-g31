@@ -3,33 +3,24 @@ import ReactDOM from "react-dom/client";
 import "./index.css";
 import App from "./App";
 import reportWebVitals from "./reportWebVitals";
-import {
-  createTheme,
-  CssBaseline,
-  responsiveFontSizes,
-  ThemeProvider,
-} from "@mui/material";
 import { SnackbarProvider } from "notistack";
 import { ConfirmProvider } from "material-ui-confirm";
 import { AuthContextProvider } from "./utils/AuthContext";
-import { customDarkTheme, customLightTheme } from "./theme/theme";
-
-const theme = responsiveFontSizes(createTheme(customLightTheme));
+import ThemeContextProvider from "./theme/ThemeContextProvider";
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <ThemeProvider theme={theme}>
+  <ThemeContextProvider>
     <ConfirmProvider
       defaultOptions={{ confirmationButtonProps: { color: "error" } }}
     >
       <SnackbarProvider autoHideDuration={3000} preventDuplicate>
         <AuthContextProvider>
-          <CssBaseline />
           <App />
         </AuthContextProvider>
       </SnackbarProvider>
     </ConfirmProvider>
-  </ThemeProvider>
+  </ThemeContextProvider>
 );
 
 // If you want to start measuring performance in your app, pass a function
