@@ -5,6 +5,7 @@ import morgan from "morgan";
 import {
   createUser,
   deleteUser,
+  getUser,
   login,
   logout,
   updateUserPassword,
@@ -38,11 +39,10 @@ app.use("/api/user", router).all((_, res) => {
 router.get("/ping", (_, res) => res.send("Hello World from user-service"));
 
 router.post("/", createUser);
+router.get("", authenticateToken, getUser);
 router.post("/login", login);
 router.post("/logout", logout);
-router.post("/verifyToken", authenticateToken, (_, res) =>
-  res.status(200).send("Valid token!")
-);
+router.post("/verifyToken", authenticateToken, getUser);
 router.delete("/", authenticateToken, deleteUser);
 router.post("/changePassword", authenticateToken, updateUserPassword);
 
