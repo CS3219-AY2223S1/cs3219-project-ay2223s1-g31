@@ -10,7 +10,7 @@ import {
   TextField,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
-import io from "socket.io-client";
+import socket from "../socket.js"
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "../api/axios";
 import { URI_MATCH_SVC, URL_MATCH_SVC, URL_COLLAB_SVC } from "../configs";
@@ -29,33 +29,36 @@ function MatchingPage() {
   const match_timeout = 30
   let username = ""
 
-  const [socket, setSocket] = useState(null)
+  // const [socket, setSocket] = useState(null)
   const [difficulty, setDifficulty] = useState(Difficulty.NONE)
   const [matchFound, setMatchFound] = useState(false)
   const [timer, setTimer] = useState(-1)
 
   const handleDifficultyChange = (e) => {
     setDifficulty(e.target.value)
-    socket.emit('find-match', difficulty, username)
+    // socket.emit('find-match', difficulty, username)
     setTimer(match_timeout)
   }
 
-  const handleCreateMatch = async () => {
+  
+  const handleCreateMatch = async (e) => {
+    e.preventDefault()
     try {
       console.log("here in handle create match")
       socket.init(URI_MATCH_SVC)
       socket.get().on("connect", async () => {
-        await axios.post(URL_MATCH_SVC, {
+        const res = await axios.post(URL_MATCH_SVC, {
           username: "",
           difficulty: difficulty,
           start_time: new Date().getTime(),
           socket_id: socket.get().id,
         })
+        console.log(res)
       })
       socket.get().on("matchSuccess", async (data) => {
         console.log("Matched, room id is: " + data.roomId)
         localStorage.setItem("room_id", data.roomId)
-        navigate("/collab")
+        // navigate("/collab")
       })
       setMatchFound(true);
     } catch (err) {
@@ -69,14 +72,16 @@ function MatchingPage() {
     }
   })
 
-  useEffect(() => {
-    socket.on('match-found', message => {
-      handleCreateMatch(message.roommates)
-    })
-    return () => {
-      socket.off('match-found')
-    }
-  }, [difficulty])
+  // useEffect(() => {
+  //   const socket = io(URI_MATCH_SVC, {
+  //     transport: ["websocket"],
+  //   })
+  //   setSocket(socket)
+  // })
+
+  // useEffect(() => {
+  //   handleCreateMatch()
+  // })
 
   useEffect(() => {
     if (timer > 0) {

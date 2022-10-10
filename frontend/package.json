@@ -11,7 +11,7 @@
     "@testing-library/jest-dom": "^5.16.4",
     "@testing-library/react": "^13.3.0",
     "@testing-library/user-event": "^13.5.0",
-    "@uiw/react-codemirror": "^4.12.3",
+    "@uiw/react-codemirror": "^4.12.4",
     "axios": "^0.27.2",
     "codemirror": "^6.0.1",
     "i": "^0.3.7",

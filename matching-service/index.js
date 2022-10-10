@@ -32,6 +32,9 @@ app.use("/api/matching", router).all((_, res) => {
 router.get("/ping", (_, res) => res.send("Hello World from matching-service"))
 
 router.post("/", createMatchEntry)
+// router.post("/", (req, res) => {
+//   res.status(200).json({message: req.body})
+// })
 
 io.on("connection", (socket) => {
   console.log(`Connected ${socket.id}`);

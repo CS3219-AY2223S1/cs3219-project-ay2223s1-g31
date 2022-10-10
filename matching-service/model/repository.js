@@ -1,6 +1,5 @@
 import MatchEntryModel from "./match-model.js";
 
-//Set up sqlite driver
 import { Op, Sequelize } from "sequelize";
 
 const sequelize = new Sequelize("sqlite::memory:");
