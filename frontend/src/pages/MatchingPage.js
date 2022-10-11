@@ -75,7 +75,7 @@ function MatchingPage() {
   }, [intervalId, socket]);
 
   useEffect(() => {
-    if (waitingTime >= 30) {
+    if (waitingTime >= MAX_WAITING_TIME) {
       handleCancelFindMatch();
       return;
     }
