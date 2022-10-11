@@ -1,19 +1,19 @@
-import MatchModel from './match-model.js'
+import MatchEntryModel from "./match-model.js";
 
-import { Op, Sequelize } from 'sequelize'
+import { Op, Sequelize } from "sequelize";
 
-const sequalize = new Sequelize('sqlite::memory:')
+const sequelize = new Sequelize("sqlite::memory:");
 
-const matchModel = await MatchModel(sequalize)
-await matchModel.sync({ force: true })
+const matchEntryModel = await MatchEntryModel(sequelize);
+await matchEntryModel.sync({ force: true });
 
-export async function createMatch(params) {
-  return matchModel.create(params)
+export async function createMatchEntry(params) {
+  return matchEntryModel.create(params);
 }
 
-export async function listMatch(params) {
-  const { difficulty, start_time } = params
-  return matchModel.findAll({
+export async function listValidMatchEntriesByDifficulty(params) {
+  const { difficulty, start_time, socket_id } = params;
+  return matchEntryModel.findAll({
     where: {
       difficulty: {
         [Op.eq]: difficulty,
@@ -21,6 +21,20 @@ export async function listMatch(params) {
       start_time: {
         [Op.gte]: new Date(start_time - 30000).getTime(),
       },
+      socket_id: {
+        [Op.ne]: socket_id,
+      }
     },
   });
+}
+
+export async function deleteMatchEntry(params) {
+  const { socket_id } = params
+  return matchEntryModel.destroy({
+    where: {
+      socket_id: {
+        [Op.eq]: socket_id
+      },
+    },
+  })
 }

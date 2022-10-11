@@ -18,7 +18,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import axios from "../api/axios";
-import { URL_COLLAB_SVC, URL_QUESTION_SVC } from "../configs";
+import io from "../utils/socket";
+import {
+  URI_MATCH_SVC,
+  URL_MATCH_SVC,
+  URL_COLLAB_SVC,
+  URL_QUESTION_SVC,
+} from "../configs";
 import { useAuth } from "../utils/AuthContext";
 import CircularProgressLabelled from "../components/CircularProgressLabelled";
 
@@ -31,21 +37,37 @@ const Difficulty = {
 
 function MatchingPage() {
   const MAX_WAITING_TIME = 30;
+  const { auth } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const [difficulty, setDifficulty] = useState(Difficulty.NONE);
   const [isFinding, setIsFinding] = useState(false);
   const [waitingTime, setWaitingTime] = useState(0);
   const [intervalId, setIntervalId] = useState(null);
+  const [socket, setSocket] = useState(null);
 
-  // useEffect(() => {
-  //   setWaitingTime(0);
-  //   const clearInterval = setInterval(() => {
-  //     setWaitingTime((t) => t + 1);
-  //   }, 1000);
-  //   return () => {
-  //     clearInterval();
-  //   };
-  // }, [isFinding]);
+  useEffect(() => {
+    io.init(URI_MATCH_SVC);
+    const socket = io.get(); // io is just the "socket" imported from socket.js
+    setSocket(socket);
+    socket.on("connect", () => {
+      console.log("connection is listened.");
+    });
+    // if there is a match
+    socket.on("match-success", async (data) => {
+      console.log("Matched, room id is: " + data.room_id);
+      localStorage.setItem("room_id", data.room_id);
+      resetLoading();
+      // navigate("/collab")
+    });
+
+    socket.on("match-failure", () => {
+      resetLoading();
+    });
+
+    return () => {
+      socket.close();
+    };
+  }, []);
 
   const handleFindMatch = (e) => {
     e.preventDefault();
@@ -58,13 +80,33 @@ function MatchingPage() {
     setIsFinding(true);
     setWaitingTime(0);
     const intervalId = setInterval(() => {
+      if (waitingTime >= 30) {
+        handleCancelFindMatch();
+        return;
+      }
       setWaitingTime((t) => t + 1);
     }, 1000);
     setIntervalId(intervalId);
+
+    console.log("here in handle create match");
+    // find match
+    socket.emit("find-match", {
+      username: auth.username,
+      difficulty,
+      start_time: new Date().getTime(),
+      socket_id: socket.id,
+    });
   };
 
   const handleCancelFindMatch = () => {
+    resetLoading();
+    const socket_id = socket.id;
+    socket.emit("cancel-match", { username: auth.username, socket_id });
+  };
+
+  const resetLoading = () => {
     setIsFinding(false);
+    setWaitingTime(0);
     intervalId && clearInterval(intervalId);
     setIntervalId(null);
   };

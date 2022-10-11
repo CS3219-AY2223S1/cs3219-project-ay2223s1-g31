@@ -1,15 +1,15 @@
-import { DataTypes } from 'sequelize'
+import { DataTypes } from "sequelize";
 
 export default (sequelize) => {
-  const Match = sequelize.define(
-    "Match", {
+  const MatchEntry = sequelize.define(
+    "MatchEntry",
+    {
       username: DataTypes.STRING,
       difficulty: DataTypes.INTEGER,
       start_time: DataTypes.INTEGER,
       socket_id: DataTypes.STRING,
-    }, {
-      freezeTable: true
-    }
-  )
-  return Match
-}
+    },
+    { freezeTableName: true }
+  );
+  return MatchEntry;
+};
