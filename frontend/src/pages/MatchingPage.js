@@ -14,12 +14,11 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useEffect, useState } from "react";
-import socket from "../socket.js"
-import { useNavigate, useLocation } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import axios from "../api/axios";
-import { URI_MATCH_SVC, URL_MATCH_SVC, URL_COLLAB_SVC, URL_QUESTION_SVC } from "../configs";
+import { URL_COLLAB_SVC, URL_QUESTION_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
 import CircularProgressLabelled from "../components/CircularProgressLabelled";
 
@@ -33,125 +32,94 @@ const Difficulty = {
 function MatchingPage() {
   const MAX_WAITING_TIME = 30;
   const { enqueueSnackbar } = useSnackbar();
-  const navigate = useNavigate()
-  const {auth} = useAuth();
-  const location = useLocation()
-  let username = ""
-
-  // const [socket, setSocket] = useState(null)
-  const [difficulty, setDifficulty] = useState(Difficulty.NONE)
-  const [matchFound, setMatchFound] = useState(false)
-  const [timer, setTimer] = useState(-1)
+  const [difficulty, setDifficulty] = useState(Difficulty.NONE);
+  const [isFinding, setIsFinding] = useState(false);
   const [waitingTime, setWaitingTime] = useState(0);
   const [intervalId, setIntervalId] = useState(null);
 
-  const handleDifficultyChange = (e) => {
-    setDifficulty(e.target.value)
-  }
-  
-  const handleCreateMatch = async (e) => {
-    e.preventDefault()
-    setTimer(MAX_WAITING_TIME)
-    username = auth.username;
-    try {
-      console.log("here in handle create match")
+  // useEffect(() => {
+  //   setWaitingTime(0);
+  //   const clearInterval = setInterval(() => {
+  //     setWaitingTime((t) => t + 1);
+  //   }, 1000);
+  //   return () => {
+  //     clearInterval();
+  //   };
+  // }, [isFinding]);
 
-      // init socket
-      socket.init(URI_MATCH_SVC)
+  const handleFindMatch = (e) => {
+    e.preventDefault();
 
-      // find match
-      socket.get().on("connect", async () => {
-        const res = await axios.post(URL_MATCH_SVC, {
-          username: username,
-          difficulty: difficulty,
-          start_time: new Date().getTime(),
-          socket_id: socket.get().id,
-        })
-        console.log(res)
-      })
-
-      // if there is a match
-      socket.get().on("matchSuccess", async (data) => {
-        console.log("Matched, room id is: " + data.room_id)
-        localStorage.setItem("room_id", data.room_id)
-        // navigate("/collab")
-      })
-
-      // if there is no match
-      socket.get().on("matchUnavai", () => {
-        console.log("Unable to find a match!")
-      })
-      
-      setMatchFound(true);
-    } catch (err) {
-      console.err(err);
+    if (difficulty === Difficulty.NONE) {
+      enqueueSnackbar("Please choose the difficulty!", { variant: "warning" });
+      return;
     }
-  }
 
-  useEffect(() => {
-    if (location.state != null && location.state.username != null) {
-      username = location.state.username
-    }
-  })
-
-  useEffect(() => {
-    if (timer > 0) {
-      setTimeout(() => setTimer(timer - 1), 1000)
-    } else if (timer == 0) {
-      socket.get().emit('disconnet-match')
-      setMatchFound(false)
-    }
+    setIsFinding(true);
     setWaitingTime(0);
     const intervalId = setInterval(() => {
       setWaitingTime((t) => t + 1);
     }, 1000);
     setIntervalId(intervalId);
-  })
+  };
 
   const handleCancelFindMatch = () => {
     setIsFinding(false);
     intervalId && clearInterval(intervalId);
     setIntervalId(null);
-  }
+  };
 
   return (
     <Box>
-      <form onSubmit={handleCreateMatch}>
-        <FormControl>
-          <FormLabel>Difficulty</FormLabel>
-          <RadioGroup
-            name="difficulty-selector-group"
-            value={difficulty}
-            onChange={handleDifficultyChange}>
-            <FormControlLabel
-              value={Difficulty.EASY}
-              control={<Radio />}
-              label="Easy"
-            />
-            <FormControlLabel
-              value={Difficulty.MEDIUM}
-              control={<Radio />}
-              label="Medium"
-            />
-            <FormControlLabel
-              value={Difficulty.HARD}
-              control={<Radio />}
-              label="Hard"
-            />
-          </RadioGroup>
-          <Button type="submit" variant="contained">
+      <Typography variant="h3">Choose your difficulty</Typography>
+      <form onSubmit={handleFindMatch}>
+        <FormControl disabled={isFinding}>
+          <DifficultyOptions
+            difficulty={difficulty}
+            setDifficulty={setDifficulty}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ maxWidth: 200 }}
+            disabled={isFinding}
+          >
             Find Match
           </Button>
         </FormControl>
       </form>
-      {matchFound && (
-        <Box>
-          <Box>Finding Match ...</Box>
-          <LinearProgress />
-          <Button onClick={() => setMatchFound(false)}>Cancel</Button>
-        </Box>
-      )}
-      <CollabRoomTest />
+      <CollabRoomTest difficulty={difficulty} />
+      <Dialog
+        open={isFinding}
+        onClose={handleCancelFindMatch}
+        fullWidth
+        maxWidth={"sm"}
+      >
+        <DialogTitle mb={4}>Finding match...</DialogTitle>
+        <DialogContent
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 4,
+            // paddingTop: 4,
+            // paddingBottom: 4,
+          }}
+        >
+          {/* <CircularProgress size={60} /> */}
+          <CircularProgressLabelled
+            value={waitingTime}
+            maxValue={MAX_WAITING_TIME}
+            size={80}
+          />
+          <Typography>Matching you with a peer...</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button color="error" onClick={handleCancelFindMatch}>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 }
