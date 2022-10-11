@@ -101,6 +101,7 @@ function RoomPage() {
     });
     return () => {
       socket.emit("disconnect-from-room", { roomId });
+      socket.close();
     };
   }, []);
 

@@ -18,8 +18,13 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import axios from "../api/axios";
-import { default as io } from "../socket"
-import { URI_MATCH_SVC, URL_MATCH_SVC, URL_COLLAB_SVC, URL_QUESTION_SVC } from "../configs";
+import io from "../utils/socket";
+import {
+  URI_MATCH_SVC,
+  URL_MATCH_SVC,
+  URL_COLLAB_SVC,
+  URL_QUESTION_SVC,
+} from "../configs";
 import { useAuth } from "../utils/AuthContext";
 import CircularProgressLabelled from "../components/CircularProgressLabelled";
 
@@ -32,28 +37,40 @@ const Difficulty = {
 
 function MatchingPage() {
   const MAX_WAITING_TIME = 30;
-  const { auth } = useAuth()
+  const { auth } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
   const [difficulty, setDifficulty] = useState(Difficulty.NONE);
   const [isFinding, setIsFinding] = useState(false);
-  const [timer, setTimer] = useState(-1);
   const [waitingTime, setWaitingTime] = useState(0);
   const [intervalId, setIntervalId] = useState(null);
-  const [socket, setSocket] = useState(null)
+  const [socket, setSocket] = useState(null);
 
-  // useEffect(() => {
-  //   setWaitingTime(0);
-  //   const clearInterval = setInterval(() => {
-  //     setWaitingTime((t) => t + 1);
-  //   }, 1000);
-  //   return () => {
-  //     clearInterval();
-  //   };
-  // }, [isFinding]);
+  useEffect(() => {
+    io.init(URI_MATCH_SVC);
+    const socket = io.get(); // io is just the "socket" imported from socket.js
+    setSocket(socket);
+    socket.on("connect", () => {
+      console.log("connection is listened.");
+    });
+    // if there is a match
+    socket.on("match-success", async (data) => {
+      console.log("Matched, room id is: " + data.room_id);
+      localStorage.setItem("room_id", data.room_id);
+      resetLoading();
+      // navigate("/collab")
+    });
+
+    socket.on("match-failure", () => {
+      resetLoading();
+    });
+
+    return () => {
+      socket.close();
+    };
+  }, []);
 
   const handleFindMatch = (e) => {
     e.preventDefault();
-    setTimer(MAX_WAITING_TIME)
 
     if (difficulty === Difficulty.NONE) {
       enqueueSnackbar("Please choose the difficulty!", { variant: "warning" });
@@ -63,88 +80,36 @@ function MatchingPage() {
     setIsFinding(true);
     setWaitingTime(0);
     const intervalId = setInterval(() => {
+      if (waitingTime >= 30) {
+        handleCancelFindMatch();
+        return;
+      }
       setWaitingTime((t) => t + 1);
     }, 1000);
     setIntervalId(intervalId);
 
-    try {
-      console.log("here in handle create match")
-
-      // find match
-      socket.emit("find-match", {
-        username: auth.username,
-        difficulty,
-        start_time: new Date().getTime(),
-        socket_id: socket.id,
-      })
-      // if there is a match
-      socket.on("match-success", async (data) => {
-        console.log("Matched, room id is: " + data.room_id)
-        localStorage.setItem("room_id", data.room_id)
-      })
-      // if there is no match
-      socket.on("match-failure", () => {
-        console.log("Unable to find a match at the moment!")
-      })
-
-      // // init socket
-      // console.log("socket is init.")
-      // socket.init(URI_MATCH_SVC)
-
-      // // find match
-      // socket.get().on("connect", () => {
-      //   console.log("connection is listened.")
-      // })
-
-      // socket.get().emit("find-match", {
-      //   username: auth.username,
-      //   difficulty,
-      //   start_time: new Date().getTime(),
-      //   socket_id: socket.get().id,
-      // })
-
-      // // socket.get().on("connect", async () => {
-      // //   const res = await axios.post(URL_MATCH_SVC, {
-      // //     username: username,
-      // //     difficulty: difficulty,
-      // //     start_time: new Date().getTime(),
-      // //     socket_id: socket.get().id,
-      // //   })
-      // //   console.log(res)
-      // // })
-
-      // // if there is a match
-      // socket.get().on("match-success", async (data) => {
-      //   console.log("Matched, room id is: " + data.room_id)
-      //   localStorage.setItem("room_id", data.room_id)
-      //   // navigate("/collab")
-      // })
-
-      // // if there is no match
-      // socket.get().on("match-failure", () => {
-      //   console.log("Unable to find a match at the moment!")
-      // })
-    } catch (err) {
-      console.log(err);
-    }
+    console.log("here in handle create match");
+    // find match
+    socket.emit("find-match", {
+      username: auth.username,
+      difficulty,
+      start_time: new Date().getTime(),
+      socket_id: socket.id,
+    });
   };
 
   const handleCancelFindMatch = () => {
-    setIsFinding(false);
-    intervalId && clearInterval(intervalId);
-    setIntervalId(null);
-    const socket_id = socket.id
-    socket.emit("cancel-match", { socket_id }) 
+    resetLoading();
+    const socket_id = socket.id;
+    socket.emit("cancel-match", { username: auth.username, socket_id });
   };
 
-  useEffect(() => {
-    io.init(URI_MATCH_SVC)
-    const socket = io.get() // io is just the "socket" imported from socket.js
-    setSocket(socket)
-    socket.on("connect", () => {
-      console.log("connection is listened.")
-    })
-  }, [])
+  const resetLoading = () => {
+    setIsFinding(false);
+    setWaitingTime(0);
+    intervalId && clearInterval(intervalId);
+    setIntervalId(null);
+  };
 
   return (
     <Box>
