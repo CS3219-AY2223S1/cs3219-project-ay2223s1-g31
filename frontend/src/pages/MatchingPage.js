@@ -25,6 +25,7 @@ const Difficulty = {
 
 function MatchingPage() {
   const navigate = useNavigate()
+  const {auth} = useAuth();
   const location = useLocation()
   const match_timeout = 30
   let username = ""
@@ -39,10 +40,10 @@ function MatchingPage() {
     // socket.emit('find-match', difficulty, username)
     setTimer(match_timeout)
   }
-
   
   const handleCreateMatch = async (e) => {
     e.preventDefault()
+    username = auth.username;
     try {
       console.log("here in handle create match")
 
@@ -62,13 +63,13 @@ function MatchingPage() {
 
       // if there is a match
       socket.get().on("matchSuccess", async (data) => {
-        console.log("Matched, room id is: " + data.roomId)
-        localStorage.setItem("room_id", data.roomId)
+        console.log("Matched, room id is: " + data.room_id)
+        localStorage.setItem("room_id", data.room_id)
         // navigate("/collab")
       })
 
       // if there is no match
-      socket.get().on("matchFailure", () => {
+      socket.get().on("matchUnavai", () => {
         console.log("Unable to find a match!")
       })
       
