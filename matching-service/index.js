@@ -38,6 +38,11 @@ router.post("/", createMatchEntry)
 
 io.on("connection", (socket) => {
   console.log(`Connected ${socket.id}`);
+
+  socket.on("disconnect-match", () => {
+    console.log("User disconnected matching")
+  })
+  
   socket.on("code-event1", ({ room_id, newCode }) => {
     io.get().sockets.in(room_id).emit("code-event", { newCode })
   })
