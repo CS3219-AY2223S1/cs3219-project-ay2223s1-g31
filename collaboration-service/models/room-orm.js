@@ -3,6 +3,7 @@ import moment from "moment";
 import chalk from "chalk";
 
 const redisClient = createClient();
+const EXPIRATION = 60 * 60 * 24;
 
 redisClient
   .connect()
@@ -59,6 +60,7 @@ export async function ormCreateRoom(roomId) {
       created: moment().toString(),
       updated: moment().toString(),
     });
+    await redisClient.expire(`${roomId}:info`, EXPIRATION);
     // console.log(`[${result}] Created ${roomId}`);
     return true;
   } catch (err) {
@@ -73,6 +75,7 @@ export async function ormCreateRoomQuestion(roomId, question) {
       `${roomId}:question`,
       JSON.stringify(question)
     );
+    await redisClient.expire(`${roomId}:question`, EXPIRATION);
     console.log(JSON.stringify(question));
     // console.log(`[${result}] Created ${roomId}`);
     return true;
@@ -84,6 +87,7 @@ export async function ormCreateRoomQuestion(roomId, question) {
 export async function ormAddUsersToRoom(roomId, usernames) {
   try {
     const result = await redisClient.sAdd(`${roomId}:users`, usernames);
+    await redisClient.expire(`${roomId}:users`, EXPIRATION);
     // console.log(`[${result}] Added ${usernames} to room ${roomId}`);
     return true;
   } catch (err) {
@@ -97,6 +101,7 @@ export async function ormCreateConnection(socketId, roomId, username) {
     // console.log(
     //   `[${result}] Created connection for socket ${socketId}: ${username} - room ${roomId}`
     // );
+    await redisClient.expire(socketId, EXPIRATION);
     return true;
   } catch (err) {
     return { err };
