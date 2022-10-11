@@ -36,11 +36,13 @@ function MatchingPage() {
 
   const handleDifficultyChange = (e) => {
     setDifficulty(e.target.value)
+    // socket.emit('find-match', difficulty, username)
+    setTimer(match_timeout)
   }
+
   
   const handleCreateMatch = async (e) => {
     e.preventDefault()
-    setTimer(match_timeout)
     try {
       console.log("here in handle create match")
       socket.init(URI_MATCH_SVC)
@@ -85,7 +87,7 @@ function MatchingPage() {
     if (timer > 0) {
       setTimeout(() => setTimer(timer - 1), 1000)
     } else if (timer == 0) {
-      socket.get().emit('disconnect-match')
+      socket.get().emit('disconnet-match')
       setMatchFound(false)
     }
   })

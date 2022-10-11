@@ -18,25 +18,25 @@ export async function createMatchEntry(req, res) {
     );
     console.log('VALID ENTRY')
     console.log(valid_entries)
-    if (valid_entries.length != 0) {
-      console.log("Some valid entries exist")
-      const create_response = await _createMatchEntry(
-        username,
-        difficulty,
-        start_time,
-        socket_id
-      );
-      if (create_response) {
-        return res.status(200).json({ message: "ok" });
-      }
+
+    // check for valid entries
+    if (valid_entries.length == 0) {
+      console.log("No valid entries exist")
+      io.get().emit("matchFailure") // Error: socket.io is not initialized ?
       return res.status(200).json({ message: "not ok!" });
     }
 
-    if (!valid_entries) {
-      console.log("No valid entries exist")
-      io.get().to(socket_id).emit("matchFailure")
-      return res.status(200).json({ message: "not ok!" });
+    console.log("Some valid entries exist")
+    const create_response = await _createMatchEntry(
+      username,
+      difficulty,
+      start_time,
+      socket_id
+    );
+    if (create_response) {
+      return res.status(200).json({ message: "ok" });
     }
+    // return res.status(200).json({ message: "not ok!" });
 
     // delete entry
     console.log("Found match.");
