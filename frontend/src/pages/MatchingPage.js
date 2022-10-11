@@ -85,7 +85,7 @@ function MatchingPage() {
     if (timer > 0) {
       setTimeout(() => setTimer(timer - 1), 1000)
     } else if (timer == 0) {
-      socket.emit('disconnect-match')
+      socket.get().emit('disconnect-match')
       setMatchFound(false)
     }
   })

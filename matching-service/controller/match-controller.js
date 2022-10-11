@@ -12,13 +12,14 @@ export async function createMatchEntry(req, res) {
   
   try {
     const valid_entries = await _listValidMatchEntriesByDifficulty(
-      username,
       difficulty,
-      start_time
+      start_time,
+      socket_id
     );
     console.log('VALID ENTRY')
     console.log(valid_entries)
-    if (valid_entries.length == 0) {
+    if (valid_entries.length != 0) {
+      console.log("Some valid entries exist")
       const create_response = await _createMatchEntry(
         username,
         difficulty,
@@ -28,6 +29,12 @@ export async function createMatchEntry(req, res) {
       if (create_response) {
         return res.status(200).json({ message: "ok" });
       }
+      return res.status(200).json({ message: "not ok!" });
+    }
+
+    if (!valid_entries) {
+      console.log("No valid entries exist")
+      io.get().to(socket_id).emit("matchFailure")
       return res.status(200).json({ message: "not ok!" });
     }
 

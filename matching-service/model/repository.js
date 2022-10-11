@@ -12,18 +12,18 @@ export async function createMatchEntry(params) {
 }
 
 export async function listValidMatchEntriesByDifficulty(params) {
-  const { username, difficulty, start_time } = params;
+  const { difficulty, start_time, socket_id } = params;
   return matchEntryModel.findAll({
     where: {
-      username: {
-        [Op.ne]: username,
-      },
       difficulty: {
         [Op.eq]: difficulty,
       },
       start_time: {
         [Op.gte]: new Date(start_time - 30000).getTime(),
       },
+      socket_id: {
+        [Op.ne]: socket_id,
+      }
     },
   });
 }
