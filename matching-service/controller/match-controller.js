@@ -12,6 +12,7 @@ export async function createMatchEntry(req, res) {
   
   try {
     const valid_entries = await _listValidMatchEntriesByDifficulty(
+      username,
       difficulty,
       start_time
     );

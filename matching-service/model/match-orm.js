@@ -19,11 +19,13 @@ export async function ormCreateMatchEntry(
 }
 
 export async function ormListValidMatchEntriesByDifficulty(
+  username,
   difficulty,
   start_time
 ) {
   try {
     const newMatchEntry = await listValidMatchEntriesByDifficulty({
+      username,
       difficulty,
       start_time,
     });
