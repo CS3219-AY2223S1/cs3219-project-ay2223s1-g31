@@ -51,7 +51,7 @@ function MatchingPage() {
   
   const handleCreateMatch = async (e) => {
     e.preventDefault()
-    setTimer(match_timeout)
+    setTimer(MAX_WAITING_TIME)
     username = auth.username;
     try {
       console.log("here in handle create match")
