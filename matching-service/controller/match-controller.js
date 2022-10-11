@@ -22,7 +22,7 @@ export async function createMatchEntry(req, res) {
     // check for valid entries
     if (valid_entries.length == 0) {
       console.log("No valid entries exist")
-      io.get().emit("matchFailure") // Error: socket.io is not initialized ?
+      io.get().to(socket_id).emit("matchFailure") // Error: socket.io is not initialized ?
       return res.status(200).json({ message: "not ok!" });
     }
 

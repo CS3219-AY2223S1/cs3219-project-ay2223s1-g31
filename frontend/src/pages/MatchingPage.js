@@ -45,21 +45,33 @@ function MatchingPage() {
     e.preventDefault()
     try {
       console.log("here in handle create match")
+
+      // init socket
       socket.init(URI_MATCH_SVC)
+
+      // find match
       socket.get().on("connect", async () => {
         const res = await axios.post(URL_MATCH_SVC, {
-          username: "",
+          username: username,
           difficulty: difficulty,
           start_time: new Date().getTime(),
           socket_id: socket.get().id,
         })
         console.log(res)
       })
+
+      // if there is a match
       socket.get().on("matchSuccess", async (data) => {
         console.log("Matched, room id is: " + data.roomId)
         localStorage.setItem("room_id", data.roomId)
         // navigate("/collab")
       })
+
+      // if there is no match
+      socket.get().on("matchFailure", () => {
+        console.log("Unable to find a match!")
+      })
+      
       setMatchFound(true);
     } catch (err) {
       console.err(err);
