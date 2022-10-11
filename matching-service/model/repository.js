@@ -27,3 +27,14 @@ export async function listValidMatchEntriesByDifficulty(params) {
     },
   });
 }
+
+export async function deleteMatchEntry(params) {
+  const { socket_id } = params
+  return matchEntryModel.destroy({
+    where: {
+      socket_id: {
+        [Op.eq]: socket_id
+      },
+    },
+  })
+}

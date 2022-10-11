@@ -3,7 +3,7 @@ import cors from "cors"
 import morgan from "morgan"
 import http from "http"
 import { Server } from "socket.io"
-import { createMatchEntry } from "./controller/match-controller.js"
+import { createMatchEntry, deleteMatchEntry } from "./controller/match-controller.js"
 
 const FRONTEND_ORIGIN = "http://localhost:3000";
 const PORT = process.env.PORT || 8001;
@@ -34,11 +34,14 @@ app.use("/api/matching", router).all((_, res) => {
 })
 
 router.get("/ping", (_, res) => res.send("Hello World from matching-service"))
-
 router.post("/", createMatchEntry)
+router.delete("/", deleteMatchEntry)
 
 io.on("connection", (socket) => {
   console.log(`Connected ${socket.id}`);
+
+  socket.on("find-match", ({ username, difficulty, start_time, socket_id }, res) => createMatchEntry({ username, difficulty, start_time, socket_id }, res))
+  socket.on("cancel-match", ({ socket_id }) => deleteMatchEntry({ socket_id }, res))
 
   socket.on("disconnect-match", () => {
     console.log("User disconnected matching")

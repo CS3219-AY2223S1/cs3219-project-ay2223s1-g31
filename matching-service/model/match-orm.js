@@ -1,6 +1,7 @@
 import {
   createMatchEntry,
   listValidMatchEntriesByDifficulty,
+  deleteMatchEntry,
 } from "./repository.js";
 
 export async function ormCreateMatchEntry(
@@ -33,5 +34,15 @@ export async function ormListValidMatchEntriesByDifficulty(
   } catch (err) {
     console.log("ERROR: Could not find match entries");
     return false;
+  }
+}
+
+export async function ormDeleteMatchEntry(
+  socket_id,
+) {
+  try {
+    await deleteMatchEntry({ socket_id })
+  } catch (err) {
+    console.log("ERROR: Could not find match entry")
   }
 }
