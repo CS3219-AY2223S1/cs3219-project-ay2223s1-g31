@@ -70,21 +70,38 @@ function MatchingPage() {
     try {
       console.log("here in handle create match")
 
+      // find match
+      socket.emit("find-match", {
+        username: auth.username,
+        difficulty,
+        start_time: new Date().getTime(),
+        socket_id: socket.id,
+      })
+      // if there is a match
+      socket.on("match-success", async (data) => {
+        console.log("Matched, room id is: " + data.room_id)
+        localStorage.setItem("room_id", data.room_id)
+      })
+      // if there is no match
+      socket.on("match-failure", () => {
+        console.log("Unable to find a match at the moment!")
+      })
+
       // // init socket
       // console.log("socket is init.")
       // socket.init(URI_MATCH_SVC)
 
-      // find match
-      socket.get().on("connect", () => {
-        console.log("connection is listened.")
-      })
+      // // find match
+      // socket.get().on("connect", () => {
+      //   console.log("connection is listened.")
+      // })
 
-      socket.get().emit("find-match", {
-        username: auth.username,
-        difficulty,
-        start_time: new Date().getTime(),
-        socket_id: socket.get().id,
-      })
+      // socket.get().emit("find-match", {
+      //   username: auth.username,
+      //   difficulty,
+      //   start_time: new Date().getTime(),
+      //   socket_id: socket.get().id,
+      // })
 
       // // socket.get().on("connect", async () => {
       // //   const res = await axios.post(URL_MATCH_SVC, {
@@ -96,17 +113,17 @@ function MatchingPage() {
       // //   console.log(res)
       // // })
 
-      // if there is a match
-      socket.get().on("match-success", async (data) => {
-        console.log("Matched, room id is: " + data.room_id)
-        localStorage.setItem("room_id", data.room_id)
-        // navigate("/collab")
-      })
+      // // if there is a match
+      // socket.get().on("match-success", async (data) => {
+      //   console.log("Matched, room id is: " + data.room_id)
+      //   localStorage.setItem("room_id", data.room_id)
+      //   // navigate("/collab")
+      // })
 
-      // if there is no match
-      socket.get().on("match-failure", () => {
-        console.log("Unable to find a match at the moment!")
-      })
+      // // if there is no match
+      // socket.get().on("match-failure", () => {
+      //   console.log("Unable to find a match at the moment!")
+      // })
     } catch (err) {
       console.log(err);
     }
