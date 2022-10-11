@@ -1,20 +1,26 @@
 import {
   Box,
   Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardHeader,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
-  FormControlLabel,
-  FormLabel,
-  LinearProgress,
-  Radio,
-  RadioGroup,
+  Stack,
   TextField,
+  Typography,
 } from "@mui/material";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import axios from "../api/axios";
 import { URL_COLLAB_SVC, URL_QUESTION_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
+import CircularProgressLabelled from "../components/CircularProgressLabelled";
 
 const Difficulty = {
   EASY: "easy",
@@ -24,13 +30,22 @@ const Difficulty = {
 };
 
 function MatchingPage() {
+  const MAX_WAITING_TIME = 30;
   const { enqueueSnackbar } = useSnackbar();
   const [difficulty, setDifficulty] = useState(Difficulty.NONE);
   const [isFinding, setIsFinding] = useState(false);
+  const [waitingTime, setWaitingTime] = useState(0);
+  const [intervalId, setIntervalId] = useState(null);
 
-  const handleDifficultyChange = (e) => {
-    setDifficulty(e.target.value);
-  };
+  // useEffect(() => {
+  //   setWaitingTime(0);
+  //   const clearInterval = setInterval(() => {
+  //     setWaitingTime((t) => t + 1);
+  //   }, 1000);
+  //   return () => {
+  //     clearInterval();
+  //   };
+  // }, [isFinding]);
 
   const handleFindMatch = (e) => {
     e.preventDefault();
@@ -41,48 +56,130 @@ function MatchingPage() {
     }
 
     setIsFinding(true);
+    setWaitingTime(0);
+    const intervalId = setInterval(() => {
+      setWaitingTime((t) => t + 1);
+    }, 1000);
+    setIntervalId(intervalId);
+  };
+
+  const handleCancelFindMatch = () => {
+    setIsFinding(false);
+    intervalId && clearInterval(intervalId);
+    setIntervalId(null);
   };
 
   return (
     <Box>
+      <Typography variant="h3">Choose your difficulty</Typography>
       <form onSubmit={handleFindMatch}>
-        <FormControl>
-          <FormLabel>Difficulty</FormLabel>
-          <RadioGroup
-            name="difficulty-selector-group"
-            value={difficulty}
-            onChange={handleDifficultyChange}
+        <FormControl disabled={isFinding}>
+          <DifficultyOptions
+            difficulty={difficulty}
+            setDifficulty={setDifficulty}
+          />
+          <Button
+            type="submit"
+            variant="contained"
+            sx={{ maxWidth: 200 }}
+            disabled={isFinding}
           >
-            <FormControlLabel
-              value={Difficulty.EASY}
-              control={<Radio />}
-              label="Easy"
-            />
-            <FormControlLabel
-              value={Difficulty.MEDIUM}
-              control={<Radio />}
-              label="Medium"
-            />
-            <FormControlLabel
-              value={Difficulty.HARD}
-              control={<Radio />}
-              label="Hard"
-            />
-          </RadioGroup>
-          <Button type="submit" variant="contained">
             Find Match
           </Button>
         </FormControl>
       </form>
-      {isFinding && (
-        <Box>
-          <Box>Finding Match ...</Box>
-          <LinearProgress />
-          <Button onClick={() => setIsFinding(false)}>Cancel</Button>
-        </Box>
-      )}
       <CollabRoomTest difficulty={difficulty} />
+      <Dialog
+        open={isFinding}
+        onClose={handleCancelFindMatch}
+        fullWidth
+        maxWidth={"sm"}
+      >
+        <DialogTitle mb={4}>Finding match...</DialogTitle>
+        <DialogContent
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 4,
+            // paddingTop: 4,
+            // paddingBottom: 4,
+          }}
+        >
+          {/* <CircularProgress size={60} /> */}
+          <CircularProgressLabelled
+            value={waitingTime}
+            maxValue={MAX_WAITING_TIME}
+            size={80}
+          />
+          <Typography>Matching you with a peer...</Typography>
+        </DialogContent>
+        <DialogActions>
+          <Button color="error" onClick={handleCancelFindMatch}>
+            Cancel
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
+  );
+}
+
+function DifficultyOptions({ difficulty, setDifficulty }) {
+  const optionTitles = ["easy", "medium", "hard"];
+  const optionIcons = ["👶", "🧑‍🦱", "👴"];
+  const optionContent = [
+    "Really easy questions for beginners.",
+    "It's getting a bit harder but not too hard.",
+    "Wow, so you are professional right?",
+  ];
+  return (
+    <Stack
+      direction={"row"}
+      justifyContent="space-evenly"
+      alignItems="center"
+      gap={1}
+      pt={2}
+      pb={2}
+      mt={4}
+    >
+      {optionTitles.map((title, idx) => {
+        return (
+          <Card
+            variant="outlined"
+            sx={(theme) => ({
+              flexBasis: "300px",
+              flexShrink: 1,
+              height: 200,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              transition: "all ease 300ms",
+              borderWidth: title === difficulty && "2px",
+              borderColor: title === difficulty && theme.palette.primary.main,
+              color: title === difficulty && theme.palette.primary.main,
+              transform: title === difficulty && "translateY(-10px)",
+            })}
+            key={title}
+          >
+            <CardActionArea
+              disableRipple
+              onClick={() => setDifficulty(title)}
+              sx={{
+                height: "100%",
+              }}
+            >
+              <CardHeader
+                title={optionIcons[idx] + " " + title.toUpperCase()}
+                titleTypographyProps={{ variant: "h4" }}
+              />
+              <CardContent>
+                <Typography>{optionContent[idx]}</Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        );
+      })}
+    </Stack>
   );
 }
 

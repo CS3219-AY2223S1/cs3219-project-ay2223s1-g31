@@ -94,7 +94,6 @@ function ProfilePage() {
         Profile
       </Typography>
       <Paper
-        // elevation={3}
         variant={"outlined"}
         sx={{
           width: "100%",
@@ -102,8 +101,9 @@ function ProfilePage() {
           padding: 8,
           paddingTop: 5,
           paddingBottom: 5,
-          justifyContent: "flex-start",
+          justifyContent: "center",
           alignItems: "center",
+          flexWrap: "wrap",
           gap: 6,
           borderRadius: 2,
         }}
@@ -118,7 +118,9 @@ function ProfilePage() {
               <PersonIcon fontSize={"large"} />
             </ListItemIcon>
             <ListItemText>
-              <Typography fontSize={22}>@{auth.username}</Typography>
+              <Typography variant={"h6"} fontWeight={400}>
+                @{auth.username}
+              </Typography>
             </ListItemText>
           </ListItem>
 
@@ -127,7 +129,7 @@ function ProfilePage() {
               <EventIcon fontSize={"large"} />
             </ListItemIcon>
             <ListItemText>
-              <Typography fontSize={22}>
+              <Typography variant={"h6"} fontWeight={400}>
                 Joined on{" "}
                 {moment(auth.createdAt).format("MMM DD YYYY").toString()}
               </Typography>
