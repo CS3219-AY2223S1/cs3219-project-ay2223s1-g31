@@ -52,10 +52,19 @@ function MatchingPage() {
     socket.on("connect", () => {
       console.log("connection is listened.");
     });
+
+    return () => {
+      socket.close();
+    };
+  }, []);
+
+  useEffect(() => {
     // if there is a match
+    if (!socket) return;
     socket.on("match-success", async (data) => {
       console.log("Matched, room id is: " + data.room_id);
       localStorage.setItem("room_id", data.room_id);
+      console.log("RESET match-success " + intervalId);
       resetLoading();
       // navigate("/collab")
     });
@@ -63,11 +72,14 @@ function MatchingPage() {
     socket.on("match-failure", () => {
       resetLoading();
     });
+  }, [intervalId, socket]);
 
-    return () => {
-      socket.close();
-    };
-  }, []);
+  useEffect(() => {
+    if (waitingTime >= 30) {
+      handleCancelFindMatch();
+      return;
+    }
+  }, [waitingTime]);
 
   const handleFindMatch = (e) => {
     e.preventDefault();
@@ -79,14 +91,11 @@ function MatchingPage() {
 
     setIsFinding(true);
     setWaitingTime(0);
-    const intervalId = setInterval(() => {
-      if (waitingTime >= 30) {
-        handleCancelFindMatch();
-        return;
-      }
+    const currIntervalId = setInterval(() => {
       setWaitingTime((t) => t + 1);
     }, 1000);
-    setIntervalId(intervalId);
+    console.log("Interval " + currIntervalId);
+    setIntervalId(currIntervalId);
 
     console.log("here in handle create match");
     // find match
@@ -107,7 +116,8 @@ function MatchingPage() {
   const resetLoading = () => {
     setIsFinding(false);
     setWaitingTime(0);
-    intervalId && clearInterval(intervalId);
+    clearInterval(intervalId);
+    console.log("Clear " + intervalId);
     setIntervalId(null);
   };
 
