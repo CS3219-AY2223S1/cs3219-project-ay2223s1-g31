@@ -18,7 +18,8 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import axios from "../api/axios";
-import { URL_COLLAB_SVC, URL_QUESTION_SVC } from "../configs";
+import socket from "../socket"
+import { URI_MATCH_SVC, URL_MATCH_SVC, URL_COLLAB_SVC, URL_QUESTION_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
 import CircularProgressLabelled from "../components/CircularProgressLabelled";
 
@@ -31,11 +32,14 @@ const Difficulty = {
 
 function MatchingPage() {
   const MAX_WAITING_TIME = 30;
+  const { auth } = useAuth()
   const { enqueueSnackbar } = useSnackbar();
   const [difficulty, setDifficulty] = useState(Difficulty.NONE);
   const [isFinding, setIsFinding] = useState(false);
+  const [timer, setTimer] = useState(-1);
   const [waitingTime, setWaitingTime] = useState(0);
   const [intervalId, setIntervalId] = useState(null);
+  let username = ""
 
   // useEffect(() => {
   //   setWaitingTime(0);
@@ -49,6 +53,8 @@ function MatchingPage() {
 
   const handleFindMatch = (e) => {
     e.preventDefault();
+    setTimer(MAX_WAITING_TIME)
+    username = auth.username;
 
     if (difficulty === Difficulty.NONE) {
       enqueueSnackbar("Please choose the difficulty!", { variant: "warning" });
@@ -61,6 +67,38 @@ function MatchingPage() {
       setWaitingTime((t) => t + 1);
     }, 1000);
     setIntervalId(intervalId);
+
+    try {
+      console.log("here in handle create match")
+
+      // init socket
+      socket.init(URI_MATCH_SVC)
+
+      // find match
+      socket.get().on("connect", async () => {
+        const res = await axios.post(URL_MATCH_SVC, {
+          username: username,
+          difficulty: difficulty,
+          start_time: new Date().getTime(),
+          socket_id: socket.get().id,
+        })
+        console.log(res)
+      })
+
+      // if there is a match
+      socket.get().on("matchSuccess", async (data) => {
+        console.log("Matched, room id is: " + data.room_id)
+        localStorage.setItem("room_id", data.room_id)
+        // navigate("/collab")
+      })
+
+      // if there is no match
+      socket.get().on("matchUnavai", () => {
+        console.log("Unable to find a match!")
+      })
+    } catch (err) {
+      console.err(err);
+    }
   };
 
   const handleCancelFindMatch = () => {
