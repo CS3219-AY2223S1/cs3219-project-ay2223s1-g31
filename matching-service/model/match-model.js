@@ -6,7 +6,7 @@ export default (sequelize) => {
     {
       username: DataTypes.STRING,
       difficulty: DataTypes.INTEGER,
-      start_time: DataTypes.INTEGER, // epoch time
+      start_time: DataTypes.INTEGER,
       socket_id: DataTypes.STRING,
     },
     { freezeTableName: true }
