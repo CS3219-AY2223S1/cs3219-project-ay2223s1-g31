@@ -14,7 +14,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
 import axios from "../api/axios";
@@ -36,16 +36,6 @@ function MatchingPage() {
   const [isFinding, setIsFinding] = useState(false);
   const [waitingTime, setWaitingTime] = useState(0);
   const [intervalId, setIntervalId] = useState(null);
-
-  // useEffect(() => {
-  //   setWaitingTime(0);
-  //   const clearInterval = setInterval(() => {
-  //     setWaitingTime((t) => t + 1);
-  //   }, 1000);
-  //   return () => {
-  //     clearInterval();
-  //   };
-  // }, [isFinding]);
 
   const handleFindMatch = (e) => {
     e.preventDefault();
