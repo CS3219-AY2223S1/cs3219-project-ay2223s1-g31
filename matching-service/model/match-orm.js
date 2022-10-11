@@ -4,13 +4,13 @@ import {
 } from "./repository.js";
 
 export async function ormCreateMatchEntry(
-  email,
+  username,
   difficulty,
   start_time,
   socket_id
 ) {
   try {
-    await createMatchEntry({ email, difficulty, start_time, socket_id });
+    await createMatchEntry({ username, difficulty, start_time, socket_id });
     return true;
   } catch (err) {
     console.log("ERROR: Could not create new match entry");

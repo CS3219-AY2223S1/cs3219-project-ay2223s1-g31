@@ -6,13 +6,16 @@ import {
 
 export async function createMatchEntry(req, res) {
   const { username, difficulty, start_time, socket_id } = req.body;
+
   console.log("CREATE MATCH ENTRY")
   console.log(req.body)
+  
   try {
     const valid_entries = await _listValidMatchEntriesByDifficulty(
       difficulty,
       start_time
     );
+    console.log('VALID ENTRY')
     console.log(valid_entries)
     if (valid_entries.length == 0) {
       const create_response = await _createMatchEntry(
