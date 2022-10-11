@@ -21,6 +21,10 @@ app.use(
   })
 )
 app.use(morgan("dev"));
+app.use((req, res, next) => {
+  req.io = io;
+  return next();
+})
 
 const router = express.Router();
 
