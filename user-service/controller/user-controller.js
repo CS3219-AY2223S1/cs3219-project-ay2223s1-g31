@@ -44,6 +44,24 @@ export async function createUser(req, res) {
   }
 }
 
+export async function getUser(req, res) {
+  try {
+    const { username } = req.user;
+    const user = await ormFindOneByUsername(username);
+    if (!user) {
+      return res.status(400).json({ message: "Username does not exist!" });
+    } else if (user.err) {
+      return res.status(400).json({ message: "Could not get user info!" });
+    }
+    const { createdAt } = user;
+    return res.status(200).json({ username, createdAt });
+  } catch (err) {
+    return res
+      .status(500)
+      .json({ message: "Database failure when getting new user!" });
+  }
+}
+
 export async function login(req, res) {
   try {
     const { username, password } = req.body;
@@ -54,12 +72,12 @@ export async function login(req, res) {
     }
 
     const user = await ormFindOneByUsername(username);
-    console.log(user);
     if (!user) {
       return res.status(400).json({ message: "Username does not exist!" });
     } else if (await validatePassword(password, user.password)) {
       const data = {
         username,
+        createdAt: user.createdAt,
       };
       const accessToken = generateAccessToken(data);
 
@@ -111,6 +129,7 @@ export async function updateUserPassword(req, res) {
         .status(400)
         .json({ message: "New password/Old password are missing!" });
     }
+    console.log(username);
     const user = await ormFindOneByUsername(username);
     console.log(user);
     if (!user) {

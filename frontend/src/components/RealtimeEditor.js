@@ -1,10 +1,11 @@
 import React from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
+import { useDarkTheme } from "../theme/ThemeContextProvider";
 
 function RealtimeEditor({ value, onChange }) {
+  const { isDarkTheme } = useDarkTheme();
   const handleChange = (value, viewUpdate) => {
-    console.log(viewUpdate.state.values[0]);
     onChange(value, viewUpdate);
   };
 
@@ -13,7 +14,7 @@ function RealtimeEditor({ value, onChange }) {
       <CodeMirror
         value={value}
         onChange={handleChange}
-        theme="dark"
+        theme={isDarkTheme ? "dark" : "light"}
         editable={true}
         height={"400px"}
         placeholder={"Enter your code here..."}

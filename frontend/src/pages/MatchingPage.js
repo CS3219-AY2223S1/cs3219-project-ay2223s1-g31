@@ -1,20 +1,27 @@
 import {
   Box,
   Button,
+  Card,
+  CardActionArea,
+  CardContent,
+  CardHeader,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   FormControl,
-  FormControlLabel,
-  FormLabel,
-  LinearProgress,
-  Radio,
-  RadioGroup,
+  Stack,
   TextField,
+  Typography,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useEffect, useState } from "react";
 import socket from "../socket.js"
 import { useNavigate, useLocation } from "react-router-dom";
+import { useSnackbar } from "notistack";
 import axios from "../api/axios";
-import { URI_MATCH_SVC, URL_MATCH_SVC, URL_COLLAB_SVC } from "../configs";
+import { URI_MATCH_SVC, URL_MATCH_SVC, URL_COLLAB_SVC, URL_QUESTION_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
+import CircularProgressLabelled from "../components/CircularProgressLabelled";
 
 const Difficulty = {
   EASY: "easy",
@@ -24,25 +31,27 @@ const Difficulty = {
 };
 
 function MatchingPage() {
+  const MAX_WAITING_TIME = 30;
+  const { enqueueSnackbar } = useSnackbar();
   const navigate = useNavigate()
   const {auth} = useAuth();
   const location = useLocation()
-  const match_timeout = 30
   let username = ""
 
   // const [socket, setSocket] = useState(null)
   const [difficulty, setDifficulty] = useState(Difficulty.NONE)
   const [matchFound, setMatchFound] = useState(false)
   const [timer, setTimer] = useState(-1)
+  const [waitingTime, setWaitingTime] = useState(0);
+  const [intervalId, setIntervalId] = useState(null);
 
   const handleDifficultyChange = (e) => {
     setDifficulty(e.target.value)
-    // socket.emit('find-match', difficulty, username)
-    setTimer(match_timeout)
   }
   
   const handleCreateMatch = async (e) => {
     e.preventDefault()
+    setTimer(match_timeout)
     username = auth.username;
     try {
       console.log("here in handle create match")
@@ -85,17 +94,6 @@ function MatchingPage() {
     }
   })
 
-  // useEffect(() => {
-  //   const socket = io(URI_MATCH_SVC, {
-  //     transport: ["websocket"],
-  //   })
-  //   setSocket(socket)
-  // })
-
-  // useEffect(() => {
-  //   handleCreateMatch()
-  // })
-
   useEffect(() => {
     if (timer > 0) {
       setTimeout(() => setTimer(timer - 1), 1000)
@@ -103,7 +101,18 @@ function MatchingPage() {
       socket.get().emit('disconnet-match')
       setMatchFound(false)
     }
+    setWaitingTime(0);
+    const intervalId = setInterval(() => {
+      setWaitingTime((t) => t + 1);
+    }, 1000);
+    setIntervalId(intervalId);
   })
+
+  const handleCancelFindMatch = () => {
+    setIsFinding(false);
+    intervalId && clearInterval(intervalId);
+    setIntervalId(null);
+  }
 
   return (
     <Box>
@@ -147,19 +156,85 @@ function MatchingPage() {
   );
 }
 
-function CollabRoomTest() {
+function DifficultyOptions({ difficulty, setDifficulty }) {
+  const optionTitles = ["easy", "medium", "hard"];
+  const optionIcons = ["👶", "🧑‍🦱", "👴"];
+  const optionContent = [
+    "Really easy questions for beginners.",
+    "It's getting a bit harder but not too hard.",
+    "Wow, so you are professional right?",
+  ];
+  return (
+    <Stack
+      direction={"row"}
+      justifyContent="space-evenly"
+      alignItems="center"
+      gap={1}
+      pt={2}
+      pb={2}
+      mt={4}
+    >
+      {optionTitles.map((title, idx) => {
+        return (
+          <Card
+            variant="outlined"
+            sx={(theme) => ({
+              flexBasis: "300px",
+              flexShrink: 1,
+              height: 200,
+              display: "flex",
+              flexDirection: "column",
+              alignItems: "flex-start",
+              transition: "all ease 300ms",
+              borderWidth: title === difficulty && "2px",
+              borderColor: title === difficulty && theme.palette.primary.main,
+              color: title === difficulty && theme.palette.primary.main,
+              transform: title === difficulty && "translateY(-10px)",
+            })}
+            key={title}
+          >
+            <CardActionArea
+              disableRipple
+              onClick={() => setDifficulty(title)}
+              sx={{
+                height: "100%",
+              }}
+            >
+              <CardHeader
+                title={optionIcons[idx] + " " + title.toUpperCase()}
+                titleTypographyProps={{ variant: "h4" }}
+              />
+              <CardContent>
+                <Typography>{optionContent[idx]}</Typography>
+              </CardContent>
+            </CardActionArea>
+          </Card>
+        );
+      })}
+    </Stack>
+  );
+}
+
+function CollabRoomTest({ difficulty }) {
   const navigate = useNavigate();
   const [roomId, setRoomId] = useState("");
   const { auth } = useAuth();
   const handleCreateRoom = async () => {
     try {
+      if (!difficulty) {
+        console.error("No difficulty!");
+        return;
+      }
+      const response1 = await axios.get(URL_QUESTION_SVC + "/" + difficulty);
+      const question = response1.data;
       const response = await axios.post(URL_COLLAB_SVC + "/room", {
         username: auth.username,
+        question,
       });
       const roomId = response.data.roomId;
       navigate(`/room/${roomId}`, { replace: true });
     } catch (err) {
-      console.err(err);
+      console.error(err);
     }
   };
   const handleJoinRoom = async (roomId) => {

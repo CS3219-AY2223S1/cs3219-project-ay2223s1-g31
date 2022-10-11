@@ -6,6 +6,7 @@ import ProfilePage from "./pages/ProfilePage";
 import Layout from "./components/Layout";
 import HomePage from "./pages/HomePage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import Chat from "./components/Chat";
 import RoomPage from "./pages/RoomPage";
 
 function App() {
@@ -22,6 +23,7 @@ function App() {
             <Route exact path="/" element={<HomePage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
+            <Route path="/chat" element={<Chat />} />
           </Routes>
         </Layout>
       </Router>

@@ -1,5 +1,7 @@
 import { createContext, useEffect, useState } from "react";
 import { useContext } from "react";
+import axios from "../api/axios";
+import { URL_USER_SVC } from "../configs";
 
 const AUTH_KEY = "react_app_auth";
 
@@ -14,6 +16,12 @@ export const AuthContextProvider = ({ children }) => {
   const clearAuth = () => {
     setAuth(initialState);
     window.localStorage.removeItem(AUTH_KEY);
+  };
+
+  const logout = async () => {
+    const res = await axios.post(URL_USER_SVC + "/logout");
+    console.log(res);
+    clearAuth();
   };
 
   useEffect(() => {
@@ -35,7 +43,7 @@ export const AuthContextProvider = ({ children }) => {
   }, [auth]);
 
   return (
-    <AuthContext.Provider value={{ auth, setAuth, clearAuth }}>
+    <AuthContext.Provider value={{ auth, setAuth, logout }}>
       {children}
     </AuthContext.Provider>
   );
