@@ -3,12 +3,26 @@ import io from "socket.io-client";
 import { debounce } from "lodash";
 import { useNavigate, useParams } from "react-router-dom";
 import { useConfirm } from "material-ui-confirm";
-import { Box, Button, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  Chip,
+  Divider,
+  Fab,
+  Paper,
+  Stack,
+  Typography,
+} from "@mui/material";
+import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import { marked } from "marked";
+import htmlParse from "html-react-parser";
 import { URI_COLLAB_SVC, URL_COLLAB_SVC } from "../configs";
+import { stringToColor } from "../utils/avatar-utils";
 import RealtimeEditor from "../components/RealtimeEditor";
 import { useAuth } from "../utils/AuthContext";
 import axios from "../api/axios";
 import { useSnackbar } from "notistack";
+import { useDarkTheme } from "../theme/ThemeContextProvider";
 
 function RoomPage() {
   const { roomId } = useParams();
@@ -126,19 +140,56 @@ function RoomPage() {
   }, []);
 
   return roomFound ? (
-    <Box width={"100%"}>
-      <Typography variant="h2">Room</Typography>
-      <Typography>Hello {auth.username}</Typography>
-      <Typography>Users in room: {usersInRoom.join(", ")}</Typography>
-      <Typography>
-        Question: {question.title} ({question.difficulty}) - Tags:{" "}
-        {question.tags.join(", ")}
-      </Typography>
-      <Typography>{question.question}</Typography>
-      <RealtimeEditor value={code} onChange={handleOnEditorChange} />
-      <Button color="error" onClick={handleLeaveRoom}>
-        Leave room
-      </Button>
+    <Box
+      width={"100%"}
+      position={"absolute"}
+      top={"90px"}
+      paddingRight={4}
+      paddingLeft={4}
+      display={"flex"}
+      height={"80vh"}
+      gap={2}
+    >
+      <Paper
+        variant="outlined"
+        sx={(theme) => ({
+          padding: "20px 20px",
+          flex: 2,
+          overflow: "scroll",
+          borderColor: theme.palette.grey[600],
+        })}
+      >
+        <QuestionDisplay question={question} />
+      </Paper>
+      <Box flex={3} display={"flex"} flexDirection={"column"} gap={2}>
+        <Paper
+          variant="outlined"
+          sx={(theme) => ({
+            overflow: "scroll",
+            borderColor: theme.palette.grey[600],
+            flex: 3,
+          })}
+        >
+          <RealtimeEditor value={code} onChange={handleOnEditorChange} />
+        </Paper>
+        <Paper
+          variant="outlined"
+          sx={(theme) => ({
+            overflow: "scroll",
+            borderColor: theme.palette.grey[600],
+            flex: 1,
+          })}
+        >
+          <Typography variant="h4">Here goes the chat</Typography>
+        </Paper>
+      </Box>
+      <Fab
+        color="error"
+        onClick={handleLeaveRoom}
+        sx={{ position: "fixed", right: 30, bottom: 30 }}
+      >
+        <ExitToAppIcon />
+      </Fab>
     </Box>
   ) : (
     <RoomNotFound />
@@ -150,6 +201,46 @@ function RoomNotFound() {
     <Box>
       <Typography>Room not found!</Typography>
     </Box>
+  );
+}
+
+function QuestionDisplay({ question }) {
+  const { isDarkTheme } = useDarkTheme();
+  const difficultyChipColor =
+    question.difficulty === "easy"
+      ? "success"
+      : question.difficulty === "medium"
+      ? "warning"
+      : "error";
+  return (
+    <>
+      <Typography variant="h4">{question.title}</Typography>
+      <Divider />
+      <Stack direction={"row"} gap={1} alignItems={"center"} paddingTop={2}>
+        <Chip
+          label={question.difficulty}
+          size={"small"}
+          color={difficultyChipColor}
+        />
+        {question.tags.map((t) => (
+          <Chip
+            key={t}
+            label={t}
+            // variant={"outlined"}
+            size={"small"}
+            sx={(theme) => ({
+              color: theme.palette.getContrastText(stringToColor(t)),
+              borderColor: stringToColor(t),
+              backgroundColor: stringToColor(t),
+            })}
+          />
+        ))}
+      </Stack>
+      {/* <Typography>Users in room: {usersInRoom.join(", ")}</Typography> */}
+      <div className={isDarkTheme ? "markdown-dark" : "markdorm-light"}>
+        {htmlParse(marked(question.question))}
+      </div>
+    </>
   );
 }
 
