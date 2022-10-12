@@ -3,6 +3,8 @@ import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { useDarkTheme } from "../theme/ThemeContextProvider";
 
+const CODE_CACHE_KEY = "code-cache";
+
 function RealtimeEditor({ value, onChange }) {
   const { isDarkTheme } = useDarkTheme();
   const handleChange = (value, viewUpdate) => {
@@ -19,12 +21,8 @@ function RealtimeEditor({ value, onChange }) {
         height={"450px"}
         style={{
           margin: "0 auto",
-          textAlign: "left",
-          maxWidth: "60vw",
           overflow: "auto",
-          borderRadius: "5px",
-          position: "relative",
-          zIndex: 999,
+          borderRadius: "10px",
         }}
         // maxHeight={300}
         // minHeight={600}
