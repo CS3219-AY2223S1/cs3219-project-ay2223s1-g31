@@ -26,13 +26,14 @@ import axios from "../api/axios";
 import { useSnackbar } from "notistack";
 import { useDarkTheme } from "../theme/ThemeContextProvider";
 
+const CODE_CACHE_KEY = "code-cache";
+
 function RoomPage() {
   const { roomId } = useParams();
   const navigate = useNavigate();
   const { auth } = useAuth();
   const confirm = useConfirm();
   const { enqueueSnackbar } = useSnackbar();
-  const initialCode = "";
   const [socket, setSocket] = useState(null);
   const [question, setQuestion] = useState({
     title: "",
@@ -58,6 +59,7 @@ function RoomPage() {
 
   const handleOnEditorChange = (value, viewUpdate) => {
     setCode(value);
+    window.localStorage.setItem(CODE_CACHE_KEY, value);
     if (!viewUpdate.state.values[0].prevUserEvent) return;
     emitCodeChangeDebounced(socket, value);
   };
@@ -74,6 +76,7 @@ function RoomPage() {
   };
 
   const handleLeaveRoom = () => {
+    window.localStorage.removeItem(CODE_CACHE_KEY);
     confirm({
       title: "Leave room?",
       description: "Are you sure you want to leave room?",
@@ -129,7 +132,9 @@ function RoomPage() {
       );
       console.log(response.data);
       setQuestion(response.data);
-      setCode(response.data.template);
+      if (typeof window.localStorage.getItem(CODE_CACHE_KEY) !== "string") {
+        setCode(response.data.template);
+      }
     } catch (err) {
       console.error(err);
     }
@@ -165,6 +170,18 @@ function RoomPage() {
       socket.emit("disconnect-from-room", { roomId });
       socket.close();
     };
+  }, []);
+
+  useEffect(() => {
+    const codeCache = window.localStorage.getItem(CODE_CACHE_KEY);
+    console.log("REFRESH");
+    console.log(codeCache);
+    if (codeCache) {
+      console.log("SET CODE");
+      console.log(codeCache);
+      setCode(codeCache);
+      // emitCodeChange(socket, codeCache);
+    }
   }, []);
 
   return roomFound ? (
@@ -210,6 +227,7 @@ function RoomPage() {
             variant="outlined"
             sx={(theme) => ({
               overflow: "scroll",
+              maxWidth: "720px",
               borderColor: theme.palette.grey[600],
               flex: 3,
             })}
@@ -219,6 +237,8 @@ function RoomPage() {
           <Paper
             variant="outlined"
             sx={(theme) => ({
+              whiteSpace: "pre",
+              maxWidth: "720px",
               overflow: "scroll",
               borderColor: theme.palette.grey[600],
               flex: 1,
@@ -226,9 +246,15 @@ function RoomPage() {
             })}
           >
             {outputError ? (
-              <Typography color={"error"}>{outputError}</Typography>
+              <Typography fontFamily={"Fira Code"} color={"error"}>
+                {outputError}
+              </Typography>
             ) : (
-              <Typography>{output.join("\n")}</Typography>
+              output.map((o, id) => (
+                <Typography fontFamily={"Fira Code"} key={id}>
+                  {o}
+                </Typography>
+              ))
             )}
           </Paper>
         </Box>
