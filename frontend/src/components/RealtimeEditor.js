@@ -2,7 +2,6 @@ import React from "react";
 import CodeMirror from "@uiw/react-codemirror";
 import { python } from "@codemirror/lang-python";
 import { useDarkTheme } from "../theme/ThemeContextProvider";
-import { Paper } from "@mui/material";
 
 function RealtimeEditor({ value, onChange }) {
   const { isDarkTheme } = useDarkTheme();
@@ -17,8 +16,18 @@ function RealtimeEditor({ value, onChange }) {
         onChange={handleChange}
         theme={isDarkTheme ? "dark" : "light"}
         editable={true}
-        height={300}
+        height={"450px"}
+        style={{
+          margin: "0 auto",
+          textAlign: "left",
+          maxWidth: "60vw",
+          overflow: "auto",
+          borderRadius: "5px",
+          position: "relative",
+          zIndex: 999,
+        }}
         // maxHeight={300}
+        // minHeight={600}
         placeholder={"Enter your code here..."}
         basicSetup={true}
         extensions={[python()]}
