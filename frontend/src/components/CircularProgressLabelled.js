@@ -2,11 +2,12 @@ import React from "react";
 import { CircularProgress, Typography, Box } from "@mui/material";
 
 function CircularProgressLabelled(props) {
+  const value = Math.min(props.value, props.maxValue);
   return (
     <Box sx={{ position: "relative", display: "inline-flex" }}>
       <CircularProgress
         variant="determinate"
-        value={(props.value / props.maxValue) * 100}
+        value={(value / props.maxValue) * 100}
         size={props.size}
       />
       <Box
@@ -22,7 +23,7 @@ function CircularProgressLabelled(props) {
         }}
       >
         <Typography variant="caption" component="div" color="text.secondary">
-          {`${Math.round(props.value)}`}
+          {`${Math.round(value)}`}
         </Typography>
       </Box>
     </Box>

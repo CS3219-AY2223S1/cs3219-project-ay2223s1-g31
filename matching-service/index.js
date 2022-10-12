@@ -50,6 +50,9 @@ io.on("connection", (socket) => {
 
   socket.on("find-match", async (data) => {
     const { username, difficulty, start_time, socket_id } = data;
+    if (!username || !difficulty || !start_time || !socket_id) {
+      socket.emit("match-failure");
+    }
     try {
       const valid_entries = await ormListValidMatchEntriesByDifficulty(
         difficulty,
@@ -94,10 +97,16 @@ io.on("connection", (socket) => {
       user2_socket.join(room_id);
       console.log("Created room " + room_id);
 
-      io.sockets.in(room_id).emit("match-success", { room_id });
+      io.sockets
+        .in(room_id)
+        .emit("match-success", {
+          room_id,
+          username1: first_valid_entry["username"],
+          username2: username,
+        });
     } catch (err) {
       console.log(err);
-      io.to(socket_id).emit("match-failure");
+      socket.emit("match-failure");
     }
   });
 

@@ -54,9 +54,15 @@ export async function ormGetConnection(socketId) {
   }
 }
 
-export async function ormCreateRoom(roomId) {
+export async function ormCreateRoom(roomId, username1, username2) {
   try {
+    const exists = await redisClient.hGetAll(`${roomId}:info`);
+    if (exists && Object.keys(exists).length != 0) {
+      throw "Room ID already existed!";
+    }
     const result = await redisClient.hSet(`${roomId}:info`, {
+      username1,
+      username2,
       created: moment().toString(),
       updated: moment().toString(),
     });
@@ -120,6 +126,15 @@ export async function ormDeleteAllUsersFromRoom(roomId) {
 export async function ormDeleteRoomInfo(roomId) {
   try {
     const result = await redisClient.del(`${roomId}:info`);
+    return true;
+  } catch (err) {
+    return { err };
+  }
+}
+
+export async function ormDeleteRoomQuestion(roomId) {
+  try {
+    const result = await redisClient.del(`${roomId}:question`);
     return true;
   } catch (err) {
     return { err };

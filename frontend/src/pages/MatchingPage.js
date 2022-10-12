@@ -14,6 +14,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import { useConfirm } from "material-ui-confirm";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -39,8 +40,10 @@ function MatchingPage() {
   const MAX_WAITING_TIME = 30;
   const { auth } = useAuth();
   const { enqueueSnackbar } = useSnackbar();
+  const navigate = useNavigate();
   const [difficulty, setDifficulty] = useState(Difficulty.NONE);
   const [isFinding, setIsFinding] = useState(false);
+  const [roomId, setRoomId] = useState();
   const [waitingTime, setWaitingTime] = useState(0);
   const [intervalId, setIntervalId] = useState(null);
   const [socket, setSocket] = useState(null);
@@ -52,22 +55,45 @@ function MatchingPage() {
     socket.on("connect", () => {
       console.log("connection is listened.");
     });
-    // if there is a match
-    socket.on("match-success", async (data) => {
-      console.log("Matched, room id is: " + data.room_id);
-      localStorage.setItem("room_id", data.room_id);
-      resetLoading();
-      // navigate("/collab")
-    });
-
-    socket.on("match-failure", () => {
-      resetLoading();
-    });
 
     return () => {
       socket.close();
     };
   }, []);
+
+  useEffect(() => {
+    // if there is a match
+    if (!socket) return;
+    socket.on("match-success", async (data) => {
+      try {
+        const { room_id, username1, username2 } = data;
+        console.log("Matched, room id is: " + room_id);
+        localStorage.setItem("room_id", room_id);
+        console.log("RESET match-success " + intervalId);
+        if (auth.username === username1) {
+          await createRoom(room_id, username1, username2);
+        }
+        resetLoading();
+        setRoomId(room_id);
+      } catch (err) {
+        enqueueSnackbar("Cannot send matching request!", { variant: "error" });
+      }
+
+      // navigate("/collab")
+    });
+
+    socket.on("match-failure", () => {
+      enqueueSnackbar("Cannot find match!", { variant: "error" });
+      resetLoading();
+    });
+  }, [intervalId, socket]);
+
+  useEffect(() => {
+    if (waitingTime >= MAX_WAITING_TIME) {
+      handleCancelFindMatch();
+      return;
+    }
+  }, [waitingTime]);
 
   const handleFindMatch = (e) => {
     e.preventDefault();
@@ -79,14 +105,11 @@ function MatchingPage() {
 
     setIsFinding(true);
     setWaitingTime(0);
-    const intervalId = setInterval(() => {
-      if (waitingTime >= 30) {
-        handleCancelFindMatch();
-        return;
-      }
+    const currIntervalId = setInterval(() => {
       setWaitingTime((t) => t + 1);
     }, 1000);
-    setIntervalId(intervalId);
+    console.log("Interval " + currIntervalId);
+    setIntervalId(currIntervalId);
 
     console.log("here in handle create match");
     // find match
@@ -107,8 +130,29 @@ function MatchingPage() {
   const resetLoading = () => {
     setIsFinding(false);
     setWaitingTime(0);
-    intervalId && clearInterval(intervalId);
+    clearInterval(intervalId);
+    console.log("Clear " + intervalId);
     setIntervalId(null);
+  };
+
+  const createRoom = async (roomId, username1, username2) => {
+    if (!difficulty) {
+      console.error("No difficulty!");
+      return;
+    }
+    const response1 = await axios.get(URL_QUESTION_SVC + "/" + difficulty);
+    const question = response1.data;
+    const response = await axios.post(URL_COLLAB_SVC + "/room", {
+      roomId,
+      username1,
+      username2,
+      question,
+    });
+    return response.data;
+  };
+
+  const handleJoinRoom = () => {
+    navigate(`/room/${roomId}`, { replace: true });
   };
 
   return (
@@ -160,6 +204,15 @@ function MatchingPage() {
           <Button color="error" onClick={handleCancelFindMatch}>
             Cancel
           </Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog open={!!roomId} onClose={handleJoinRoom} maxWidth={"xs"}>
+        <DialogTitle>Match Found</DialogTitle>
+        <DialogContent>
+          Click join or close dialog to proceed to room
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleJoinRoom}>Join</Button>
         </DialogActions>
       </Dialog>
     </Box>
