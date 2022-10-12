@@ -8,6 +8,7 @@ import {
   createRoom,
   deleteRoom,
   getRoomInfo,
+  getRoomQuestion,
 } from "./controllers/room-controller.js";
 import { roomConnectHandler } from "./handlers/room-connect-handler.js";
 import { disconnectHandler } from "./handlers/disconnect-handler.js";
@@ -43,6 +44,7 @@ router.get("/ping", (_, res) =>
 
 router.post("/room", createRoom);
 router.get("/room/:roomId", getRoomInfo);
+router.get("/roomQuestion/:roomId", getRoomQuestion);
 router.delete("/room/:roomId", deleteRoom);
 
 io.on("connection", (socket) => {

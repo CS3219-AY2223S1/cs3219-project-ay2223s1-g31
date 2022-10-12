@@ -16,10 +16,18 @@ function RoomPage() {
   const { auth } = useAuth();
   const confirm = useConfirm();
   const { enqueueSnackbar } = useSnackbar();
-  const initialCode = "def add(a, b):\n    return a + b\n\nprint(add(2, 3))";
+  const initialCode = "";
   const [socket, setSocket] = useState(null);
-  const [question, setQuestion] = useState(null);
-  const [code, setCode] = useState(initialCode);
+  const [question, setQuestion] = useState({
+    title: "",
+    difficulty: "",
+    question: "",
+    template: "",
+    tags: [],
+    createdAt: "",
+    updatedAt: "",
+  });
+  const [code, setCode] = useState(question.template);
   const [usersInRoom, setUsersInRoom] = useState([]);
   const [roomFound, setRoomFound] = useState(false);
 
@@ -59,23 +67,35 @@ function RoomPage() {
       .catch(() => {});
   };
 
-  useEffect(() => {
-    (async () => {
-      try {
-        const response = await axios.get(URL_COLLAB_SVC + "/room/" + roomId);
-        if (!response.data.exists) {
-          setRoomFound(false);
-          return;
-        }
-        console.log(response.data.question);
-        setQuestion(response.data.question);
-        setCode(response.data.question.template);
-        setRoomFound(true);
-      } catch (err) {
+  const fetchRoomInfo = async () => {
+    try {
+      const response = await axios.get(URL_COLLAB_SVC + "/room/" + roomId);
+      if (!response.data.exists) {
         setRoomFound(false);
-        console.error(err);
+        return;
       }
-    })();
+      setRoomFound(true);
+    } catch (err) {
+      setRoomFound(false);
+      console.error(err);
+    }
+  };
+  const fetchRoomQuestion = async () => {
+    try {
+      const response = await axios.get(
+        URL_COLLAB_SVC + "/roomQuestion/" + roomId
+      );
+      console.log(response.data);
+      setQuestion(response.data);
+      setCode(response.data.template);
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchRoomInfo();
+    fetchRoomQuestion();
   }, []);
 
   useEffect(() => {
