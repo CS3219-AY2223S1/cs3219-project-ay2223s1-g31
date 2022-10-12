@@ -14,6 +14,7 @@ import { roomConnectHandler } from "./handlers/room-connect-handler.js";
 import { disconnectHandler } from "./handlers/disconnect-handler.js";
 import { codeChangeHandler } from "./handlers/code-change-handler.js";
 import { leaveRoomHandler } from "./handlers/leave-room-handler.js";
+import { codeExec } from "./controllers/code-controller.js";
 
 const FRONTEND_ORIGIN = "http://localhost:3000";
 const PORT = 8050;
@@ -42,10 +43,14 @@ router.get("/ping", (_, res) =>
   res.send("Hello World from collaboration-service")
 );
 
+// room routes
 router.post("/room", createRoom);
 router.get("/room/:roomId", getRoomInfo);
 router.get("/roomQuestion/:roomId", getRoomQuestion);
 router.delete("/room/:roomId", deleteRoom);
+
+// code routes
+router.post("/code", codeExec);
 
 io.on("connection", (socket) => {
   console.log("Connected " + socket.id);

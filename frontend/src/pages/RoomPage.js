@@ -11,9 +11,11 @@ import {
   Fab,
   Paper,
   Stack,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
+import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { marked } from "marked";
 import htmlParse from "html-react-parser";
 import { URI_COLLAB_SVC, URL_COLLAB_SVC } from "../configs";
@@ -44,6 +46,8 @@ function RoomPage() {
   const [code, setCode] = useState(question.template);
   const [usersInRoom, setUsersInRoom] = useState([]);
   const [roomFound, setRoomFound] = useState(false);
+  const [output, setOutput] = useState([]);
+  const [outputError, setOutputError] = useState("");
 
   const emitCodeChange = (socket, value) => {
     socket.emit("code-changed", value);
@@ -79,6 +83,30 @@ function RoomPage() {
         leaveRoom();
       })
       .catch(() => {});
+  };
+
+  const handleExecCode = async () => {
+    try {
+      setOutput(["Executing..."]);
+      setOutputError("");
+      const response = await axios.post(URL_COLLAB_SVC + "/code", {
+        code,
+      });
+      console.log(response.data);
+      if (response.data.error) {
+        setOutputError(response.data.error);
+      } else if (response.data.output) {
+        setOutputError("");
+        setOutput(response.data.output);
+      } else {
+        setOutputError("");
+        setOutput([]);
+      }
+    } catch (err) {
+      console.log(err);
+      enqueueSnackbar("Error executing code!", { variant: "error" });
+      return;
+    }
   };
 
   const fetchRoomInfo = async () => {
@@ -140,56 +168,83 @@ function RoomPage() {
   }, []);
 
   return roomFound ? (
-    <Box
-      width={"100%"}
-      position={"absolute"}
-      top={"90px"}
-      paddingRight={4}
-      paddingLeft={4}
-      display={"flex"}
-      height={"80vh"}
-      gap={2}
-    >
-      <Paper
-        variant="outlined"
-        sx={(theme) => ({
-          padding: "20px 20px",
-          flex: 2,
-          overflow: "scroll",
-          borderColor: theme.palette.grey[600],
-        })}
+    <Box width={"100%"} maxWidth={"1200px"} position={"absolute"} top={"90px"}>
+      <Box
+        paddingRight={4}
+        paddingLeft={4}
+        display={"flex"}
+        height={"600px"}
+        gap={1}
       >
-        <QuestionDisplay question={question} />
-      </Paper>
-      <Box flex={3} display={"flex"} flexDirection={"column"} gap={2}>
-        <Paper
-          variant="outlined"
-          sx={(theme) => ({
-            overflow: "scroll",
-            borderColor: theme.palette.grey[600],
-            flex: 3,
-          })}
+        <Box flexShrink={2} display={"flex"} flexDirection={"column"} gap={1}>
+          <Paper
+            variant="outlined"
+            sx={(theme) => ({
+              padding: "20px 20px",
+              overflow: "scroll",
+              borderColor: theme.palette.grey[600],
+              flex: 3,
+            })}
+          >
+            <QuestionDisplay question={question} />
+          </Paper>
+          <Paper
+            variant="outlined"
+            sx={(theme) => ({
+              overflow: "scroll",
+              borderColor: theme.palette.grey[600],
+              flex: 2,
+            })}
+          >
+            <Typography variant="h4">Here goes the chat</Typography>
+          </Paper>
+        </Box>
+        <Box
+          flexBasis={"720px"}
+          flexShrink={3}
+          display={"flex"}
+          flexDirection={"column"}
+          gap={1}
         >
-          <RealtimeEditor value={code} onChange={handleOnEditorChange} />
-        </Paper>
-        <Paper
-          variant="outlined"
-          sx={(theme) => ({
-            overflow: "scroll",
-            borderColor: theme.palette.grey[600],
-            flex: 1,
-          })}
-        >
-          <Typography variant="h4">Here goes the chat</Typography>
-        </Paper>
+          <Paper
+            variant="outlined"
+            sx={(theme) => ({
+              overflow: "scroll",
+              borderColor: theme.palette.grey[600],
+              flex: 3,
+            })}
+          >
+            <RealtimeEditor value={code} onChange={handleOnEditorChange} />
+          </Paper>
+          <Paper
+            variant="outlined"
+            sx={(theme) => ({
+              overflow: "scroll",
+              borderColor: theme.palette.grey[600],
+              flex: 1,
+              padding: 2,
+            })}
+          >
+            {outputError ? (
+              <Typography color={"error"}>{outputError}</Typography>
+            ) : (
+              <Typography>{output.join("\n")}</Typography>
+            )}
+          </Paper>
+        </Box>
+        <Box position={"fixed"} right={30} bottom={30} display={"flex"} gap={2}>
+          <Tooltip title="Execute code">
+            <Fab color="info" onClick={handleExecCode}>
+              <PlayArrowIcon />
+            </Fab>
+          </Tooltip>
+          <Tooltip title="Leave room">
+            <Fab color="error" onClick={handleLeaveRoom}>
+              <ExitToAppIcon />
+            </Fab>
+          </Tooltip>
+        </Box>
       </Box>
-      <Fab
-        color="error"
-        onClick={handleLeaveRoom}
-        sx={{ position: "fixed", right: 30, bottom: 30 }}
-      >
-        <ExitToAppIcon />
-      </Fab>
     </Box>
   ) : (
     <RoomNotFound />
