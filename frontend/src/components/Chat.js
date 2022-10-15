@@ -9,7 +9,7 @@ import {
   ListItemText,
   TextField,
 } from "@mui/material";
-import { maxHeight } from "@mui/system";
+import SendIcon from "@mui/icons-material/Send";
 import React, { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
@@ -22,21 +22,22 @@ function Chat() {
   const { roomId } = useParams();
   const [socket, setSocket] = useState(null);
   const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState('');
+  const inputMessageRef = useRef('');
+  const bottomRef = useRef(null);
 
   const sendMessage = (e) => {
     e.preventDefault();
     
-    if (!inputMessage) return
+    if (!inputMessageRef.current.value) return
 
     let message = { 
       user: auth.username, 
-      text: inputMessage
+      text: inputMessageRef.current.value
     };
 
     appendMessage(message)
     socket.emit("send-message", { roomId, message });
-    setInputMessage('')
+    e.target.reset()
   };
 
   const appendMessage = (message) => {
@@ -58,11 +59,14 @@ function Chat() {
 
   }, []);
 
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({behavior: 'smooth'});
+  },[messages])
+
   const getChatMessages = () => {
     return messages.map((msg, id) => (
       <ListItem
-        disablePadding
-        sx={{m:1}}
+        sx={{}}
         key={id}
       >
         <ListItemAvatar>
@@ -79,25 +83,33 @@ function Chat() {
             borderRadius:2,
           }}
           primary={msg.text} 
-          secondary={msg.user} 
+          secondary={msg.user}
+          secondaryTypographyProps={{color:"primary"}}
         />
       </ListItem>
     ));
   };
 
   return (
+    <Box sx={{height:"500px", width:"600px"}}>
     <Box
       sx={{
-        minHeight:"300px",
-        maxWidth:"300px",
+        height:"100%",
+        width:"100%",
+        display:"flex",
+        flexDirection:"column",
       }}
     >
       <List
         sx={{
-          maxHeight:"300px",
+          flexGrow:1,
+          width:"100%",
           overflowY:"scroll"
         }}
-      >{getChatMessages()}</List>
+      >
+        {getChatMessages()}
+        <div ref={bottomRef}></div>
+      </List>
       <form onSubmit={sendMessage} autoComplete="off">
         <FormControl
           sx={{
@@ -106,16 +118,21 @@ function Chat() {
           }}
         >
           <TextField
+            fullWidth
             label="Message"
+            inputRef={inputMessageRef}
             variant="outlined"
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
             />
-          <Button variant="contained" type="submit">
-            SEND
+          <Button 
+            endIcon={<SendIcon />}
+            type="submit"
+            variant="contained" 
+          >
+            Send
           </Button>
         </FormControl>
       </form>
+    </Box>
     </Box>
   );
 }
