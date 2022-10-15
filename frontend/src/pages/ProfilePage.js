@@ -1,4 +1,5 @@
 import {
+  Box,
   Button,
   Typography,
   Dialog,
@@ -11,19 +12,23 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
+  Tooltip,
+  Stack,
 } from "@mui/material";
+import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import PersonIcon from "@mui/icons-material/Person";
 import EventIcon from "@mui/icons-material/Event";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
 import axios from "../api/axios";
-import { URL_USER_SVC } from "../configs";
+import { URL_HISTORY_SVC, URL_USER_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
 import { useSnackbar } from "notistack";
 import { useConfirm } from "material-ui-confirm";
 import { stringAvatar } from "../utils/avatar-utils";
-import { Box } from "@mui/system";
+import DifficultyChip from "../components/DifficultyChip";
+import TagChip from "../components/TagChip";
 
 function ProfilePage() {
   const { auth, logout } = useAuth();
@@ -36,6 +41,58 @@ function ProfilePage() {
     confirmNewPassword: "",
   });
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [rows, setRows] = useState([]);
+  const columns = [
+    {
+      field: "dateTime",
+      type: "dateTime",
+      headerName: "Date/Time",
+      width: 140,
+      valueGetter: ({ value }) => value && new Date(value),
+      valueFormatter: ({ value }) =>
+        value && moment(value).format("DD/MM/YYYY HH:mm"),
+    },
+    {
+      field: "peer",
+      headerName: "Peer",
+      width: 100,
+    },
+    {
+      field: "roomId",
+      headerName: "Room ID",
+      width: 140,
+    },
+    {
+      field: "difficulty",
+      headerName: "Difficulty",
+      width: 100,
+      renderCell: ({ value }) => (
+        <DifficultyChip
+          difficulty={value}
+          size={"small"}
+          variant={"outlined"}
+        />
+      ),
+    },
+    {
+      field: "question",
+      headerName: "Question",
+      width: 160,
+    },
+    {
+      field: "tags",
+      headerName: "Tags",
+      sortable: false,
+      width: 240,
+      renderCell: ({ value }) => (
+        <Stack direction={"row"} gap={1}>
+          {value.map((t) => (
+            <TagChip tag={t} size={"small"} />
+          ))}
+        </Stack>
+      ),
+    },
+  ];
 
   const handleDialogClose = () => {
     setDialogOpen(false);
@@ -88,6 +145,20 @@ function ProfilePage() {
     }
   };
 
+  useEffect(() => {
+    (async () => {
+      try {
+        const res = await axios.get(URL_HISTORY_SVC + "/" + auth.username);
+        setRows(res.data);
+      } catch (err) {
+        console.log(err);
+        enqueueSnackbar("Error fetching history information!", {
+          variant: "error",
+        });
+      }
+    })();
+  }, []);
+
   return (
     <Box width={"100%"} maxWidth={900}>
       <Typography variant={"h3"} mb={"2rem"}>
@@ -96,7 +167,6 @@ function ProfilePage() {
       <Paper
         variant={"outlined"}
         sx={{
-          width: "100%",
           display: "flex",
           padding: 8,
           paddingTop: 5,
@@ -136,6 +206,40 @@ function ProfilePage() {
             </ListItemText>
           </ListItem>
         </Box>
+      </Paper>
+      <Paper
+        variant="outlined"
+        sx={{
+          borderRadius: 2,
+          marginTop: 2,
+          display: "flex",
+          justifyContent: "center",
+        }}
+      >
+        {rows.length <= 0 ? (
+          <Typography
+            padding={2}
+            variant={"subtitle1"}
+            sx={(theme) => ({ color: theme.palette.text.secondary })}
+          >
+            No history yet
+          </Typography>
+        ) : (
+          <DataGrid
+            rows={rows}
+            columns={columns}
+            rowHeight={50}
+            rowsPerPageOptions={[10, 50, 100]}
+            autoHeight
+            disableSelectionOnClick
+            disableColumnMenu
+            components={{
+              Toolbar: GridToolbar,
+            }}
+            onCellClick={({ value }, e) => navigator.clipboard.writeText(value)}
+            sx={{ borderRadius: 2 }}
+          />
+        )}
       </Paper>
       <Box display={"flex"} justifyContent={"flex-end"} gap={1} mt={1}>
         <Button onClick={() => setDialogOpen(true)}>Change password</Button>

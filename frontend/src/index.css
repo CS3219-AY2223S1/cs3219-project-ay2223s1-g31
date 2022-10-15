@@ -26,3 +26,8 @@ code {
   box-shadow: none;
   background-color: transparent;
 }
+
+.MuiDataGrid-cell {
+  cursor: copy;
+  overflow-x: scroll;
+}

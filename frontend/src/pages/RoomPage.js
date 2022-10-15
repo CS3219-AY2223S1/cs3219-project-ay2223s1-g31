@@ -5,7 +5,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useConfirm } from "material-ui-confirm";
 import {
   Box,
-  Button,
   Chip,
   Divider,
   Fab,
@@ -25,8 +24,10 @@ import { useAuth } from "../utils/AuthContext";
 import axios from "../api/axios";
 import { useSnackbar } from "notistack";
 import { useDarkTheme } from "../theme/ThemeContextProvider";
+import DifficultyChip from "../components/DifficultyChip";
+import TagChip from "../components/TagChip";
 
-const CODE_CACHE_KEY = "code-cache";
+export const CODE_CACHE_KEY = "code-cache";
 
 function RoomPage() {
   const { roomId } = useParams();
@@ -108,6 +109,8 @@ function RoomPage() {
     } catch (err) {
       console.log(err);
       enqueueSnackbar("Error executing code!", { variant: "error" });
+      setOutput([]);
+      setOutputError("");
       return;
     }
   };
@@ -287,34 +290,14 @@ function RoomNotFound() {
 
 function QuestionDisplay({ question }) {
   const { isDarkTheme } = useDarkTheme();
-  const difficultyChipColor =
-    question.difficulty === "easy"
-      ? "success"
-      : question.difficulty === "medium"
-      ? "warning"
-      : "error";
   return (
     <>
       <Typography variant="h4">{question.title}</Typography>
       <Divider />
       <Stack direction={"row"} gap={1} alignItems={"center"} paddingTop={2}>
-        <Chip
-          label={question.difficulty}
-          size={"small"}
-          color={difficultyChipColor}
-        />
+        <DifficultyChip difficulty={question.difficulty} size={"small"} />
         {question.tags.map((t) => (
-          <Chip
-            key={t}
-            label={t}
-            // variant={"outlined"}
-            size={"small"}
-            sx={(theme) => ({
-              color: theme.palette.getContrastText(stringToColor(t)),
-              borderColor: stringToColor(t),
-              backgroundColor: stringToColor(t),
-            })}
-          />
+          <TagChip key={t} tag={t} size={"small"} />
         ))}
       </Stack>
       {/* <Typography>Users in room: {usersInRoom.join(", ")}</Typography> */}
