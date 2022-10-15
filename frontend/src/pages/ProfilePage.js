@@ -12,7 +12,6 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  Tooltip,
   Stack,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
@@ -66,6 +65,17 @@ function ProfilePage() {
       field: "difficulty",
       headerName: "Difficulty",
       width: 100,
+      type: "singleSelect",
+      valueOptions: ["easy", "medium", "hard"],
+      sortComparator: (v1, v2) => {
+        if (v1 === "easy") {
+          return v2 === "easy" ? 0 : -1;
+        } else if (v1 === "medium") {
+          return v2 === "medium" ? 0 : v2 === "easy" ? 1 : -1;
+        } else {
+          return v2 === "hard" ? 0 : 1;
+        }
+      },
       renderCell: ({ value }) => (
         <DifficultyChip
           difficulty={value}
@@ -211,7 +221,7 @@ function ProfilePage() {
         variant="outlined"
         sx={{
           borderRadius: 2,
-          marginTop: 2,
+          marginTop: 4,
           display: "flex",
           justifyContent: "center",
         }}
