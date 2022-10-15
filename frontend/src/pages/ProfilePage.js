@@ -229,6 +229,7 @@ function ProfilePage() {
             rows={rows}
             columns={columns}
             rowHeight={50}
+            pageSize={10}
             rowsPerPageOptions={[10, 50, 100]}
             autoHeight
             disableSelectionOnClick
