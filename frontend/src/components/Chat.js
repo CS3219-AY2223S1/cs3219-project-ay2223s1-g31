@@ -31,7 +31,7 @@ function Chat() {
     if (!inputMessageRef.current.value) return
 
     let message = { 
-      user: auth.username, 
+      userId: auth.username, 
       text: inputMessageRef.current.value
     };
 
@@ -48,10 +48,12 @@ function Chat() {
     const socket = io(URI_COMM_SVC, {
       transports: ["websocket"],
     })
-    
-    setSocket(socket)
 
-    socket.emit("join-room", { roomId, user: auth.username }, setMessages);
+    setSocket(socket)
+    
+    socket.emit("join-room", 
+      { roomId, userId: auth.username },
+      setMessages);
 
     socket.on("receive-message", (message) => {
       appendMessage(message);
