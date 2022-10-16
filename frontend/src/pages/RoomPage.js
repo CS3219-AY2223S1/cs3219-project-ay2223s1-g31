@@ -5,7 +5,6 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useConfirm } from "material-ui-confirm";
 import {
   Box,
-  Chip,
   Divider,
   Fab,
   Paper,
@@ -18,7 +17,6 @@ import PlayArrowIcon from "@mui/icons-material/PlayArrow";
 import { marked } from "marked";
 import htmlParse from "html-react-parser";
 import { URI_COLLAB_SVC, URL_COLLAB_SVC } from "../configs";
-import { stringToColor } from "../utils/avatar-utils";
 import RealtimeEditor from "../components/RealtimeEditor";
 import { useAuth } from "../utils/AuthContext";
 import axios from "../api/axios";
@@ -54,7 +52,7 @@ function RoomPage() {
   const emitCodeChange = (socket, value) => {
     socket.emit("code-changed", value);
   };
-  const emitCodeChangeDebounced = useCallback(debounce(emitCodeChange, 100), [
+  const emitCodeChangeDebounced = useCallback(debounce(emitCodeChange, 50), [
     socket,
   ]);
 
