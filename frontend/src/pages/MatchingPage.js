@@ -14,7 +14,6 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
-import { useConfirm } from "material-ui-confirm";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useSnackbar } from "notistack";
@@ -22,12 +21,13 @@ import axios from "../api/axios";
 import io from "../utils/socket";
 import {
   URI_MATCH_SVC,
-  URL_MATCH_SVC,
   URL_COLLAB_SVC,
   URL_QUESTION_SVC,
+  URL_HISTORY_SVC,
 } from "../configs";
 import { useAuth } from "../utils/AuthContext";
 import CircularProgressLabelled from "../components/CircularProgressLabelled";
+import { CODE_CACHE_KEY } from "./RoomPage";
 
 const Difficulty = {
   EASY: "easy",
@@ -43,7 +43,7 @@ function MatchingPage() {
   const navigate = useNavigate();
   const [difficulty, setDifficulty] = useState(Difficulty.NONE);
   const [isFinding, setIsFinding] = useState(false);
-  const [roomId, setRoomId] = useState();
+  const [roomId, setRoomId] = useState("");
   const [waitingTime, setWaitingTime] = useState(0);
   const [intervalId, setIntervalId] = useState(null);
   const [socket, setSocket] = useState(null);
@@ -78,8 +78,6 @@ function MatchingPage() {
       } catch (err) {
         enqueueSnackbar("Cannot send matching request!", { variant: "error" });
       }
-
-      // navigate("/collab")
     });
 
     socket.on("match-failure", () => {
@@ -111,7 +109,6 @@ function MatchingPage() {
     console.log("Interval " + currIntervalId);
     setIntervalId(currIntervalId);
 
-    console.log("here in handle create match");
     // find match
     socket.emit("find-match", {
       username: auth.username,
@@ -136,30 +133,62 @@ function MatchingPage() {
   };
 
   const createRoom = async (roomId, username1, username2) => {
-    if (!difficulty) {
-      console.error("No difficulty!");
-      return;
+    try {
+      if (!difficulty) {
+        console.error("No difficulty!");
+        return;
+      }
+      const response1 = await axios.get(URL_QUESTION_SVC + "/" + difficulty);
+      const question = response1.data;
+      const response = await axios.post(URL_COLLAB_SVC + "/room", {
+        roomId,
+        username1,
+        username2,
+        question,
+      });
+      // console.log("HISTORY CREATING...");
+      // console.log({
+      //   username1,
+      //   username2,
+      //   roomId,
+      //   question,
+      // });
+      await axios.post(URL_HISTORY_SVC, {
+        username1,
+        username2,
+        roomId,
+        question,
+      });
+      return response.data;
+    } catch (err) {
+      console.log(err);
+      enqueueSnackbar(err.response.data.message);
     }
-    const response1 = await axios.get(URL_QUESTION_SVC + "/" + difficulty);
-    const question = response1.data;
-    const response = await axios.post(URL_COLLAB_SVC + "/room", {
-      roomId,
-      username1,
-      username2,
-      question,
-    });
-    return response.data;
   };
 
-  const handleJoinRoom = () => {
-    navigate(`/room/${roomId}`, { replace: true });
+  const handleJoinRoom = async () => {
+    try {
+      window.localStorage.removeItem(CODE_CACHE_KEY);
+      navigate(`/room/${roomId}`, { replace: true });
+    } catch (err) {
+      console.log(err);
+      enqueueSnackbar("Error recording history entry", { variant: "error" });
+    }
   };
 
   return (
     <Box>
       <Typography variant="h3">Choose your difficulty</Typography>
       <form onSubmit={handleFindMatch}>
-        <FormControl disabled={isFinding}>
+        <FormControl
+          disabled={isFinding}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 3,
+          }}
+        >
           <DifficultyOptions
             difficulty={difficulty}
             setDifficulty={setDifficulty}
@@ -167,14 +196,14 @@ function MatchingPage() {
           <Button
             type="submit"
             variant="contained"
-            sx={{ maxWidth: 200 }}
+            sx={{ width: "100%", maxWidth: 400 }}
             disabled={isFinding}
           >
             Find Match
           </Button>
         </FormControl>
       </form>
-      <CollabRoomTest difficulty={difficulty} />
+      {/* <CollabRoomTest difficulty={difficulty} /> */}
       <Dialog
         open={isFinding}
         onClose={handleCancelFindMatch}
@@ -223,9 +252,9 @@ function DifficultyOptions({ difficulty, setDifficulty }) {
   const optionTitles = ["easy", "medium", "hard"];
   const optionIcons = ["👶", "🧑‍🦱", "👴"];
   const optionContent = [
-    "Really easy questions for beginners.",
-    "It's getting a bit harder but not too hard.",
-    "Wow, so you are professional right?",
+    "Really easy questions for baby beginners 🥳🥳",
+    "The questions are getting a bit harder but not too hard, you can still do it 💪💪",
+    "Match with professional competitive programmers all around the globe 🌏🌍🌎",
   ];
   return (
     <Stack
@@ -244,7 +273,7 @@ function DifficultyOptions({ difficulty, setDifficulty }) {
             sx={(theme) => ({
               flexBasis: "300px",
               flexShrink: 1,
-              height: 200,
+              height: 260,
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
@@ -268,63 +297,13 @@ function DifficultyOptions({ difficulty, setDifficulty }) {
                 titleTypographyProps={{ variant: "h4" }}
               />
               <CardContent>
-                <Typography>{optionContent[idx]}</Typography>
+                <Typography fontSize={18}>{optionContent[idx]}</Typography>
               </CardContent>
             </CardActionArea>
           </Card>
         );
       })}
     </Stack>
-  );
-}
-
-function CollabRoomTest({ difficulty }) {
-  const navigate = useNavigate();
-  const [roomId, setRoomId] = useState("");
-  const { auth } = useAuth();
-  const handleCreateRoom = async () => {
-    try {
-      if (!difficulty) {
-        console.error("No difficulty!");
-        return;
-      }
-      const response1 = await axios.get(URL_QUESTION_SVC + "/" + difficulty);
-      const question = response1.data;
-      const response = await axios.post(URL_COLLAB_SVC + "/room", {
-        username: auth.username,
-        question,
-      });
-      const roomId = response.data.roomId;
-      navigate(`/room/${roomId}`, { replace: true });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  const handleJoinRoom = async (roomId) => {
-    try {
-      const response = await axios.get(URL_COLLAB_SVC + "/room/" + roomId);
-      if (!response.data.exists) {
-        console.log(response);
-        return;
-      }
-      navigate(`/room/${roomId}`, { replace: true });
-    } catch (err) {
-      console.error(err);
-    }
-  };
-  return (
-    <Box display={"flex"} alignItems={"center"} mt={2}>
-      <TextField
-        value={roomId}
-        onChange={(e) => setRoomId(e.target.value)}
-        label={"Enter room id..."}
-      />
-      <Button
-        onClick={() => (!!roomId ? handleJoinRoom(roomId) : handleCreateRoom())}
-      >
-        Join
-      </Button>
-    </Box>
   );
 }
 

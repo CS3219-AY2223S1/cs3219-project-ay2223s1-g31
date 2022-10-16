@@ -26,3 +26,22 @@ code {
   box-shadow: none;
   background-color: transparent;
 }
+
+.MuiDataGrid-cell {
+  cursor: copy;
+  overflow-x: scroll;
+}
+
+@keyframes blink {
+  from,
+  to {
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* #blinking-cursor {
+  animation: 1s blink step-end infinite;
+} */
