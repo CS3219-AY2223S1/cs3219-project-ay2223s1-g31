@@ -23,7 +23,6 @@ function App() {
             <Route exact path="/" element={<HomePage />} />
             <Route path="/signup" element={<SignupPage />} />
             <Route path="/login" element={<LoginPage />} />
-            <Route path="/chat" element={<Chat />} />
           </Routes>
         </Layout>
       </Router>

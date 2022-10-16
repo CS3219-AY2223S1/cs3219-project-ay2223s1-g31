@@ -73,7 +73,7 @@ function Chat() {
       >
         <ListItemAvatar>
           <Avatar
-            {...stringAvatar(msg.user)}
+            {...stringAvatar(msg.userId)}
             sx={{ width: 36, height: 36, fontSize: 24 }}
           />
         </ListItemAvatar>
@@ -85,7 +85,7 @@ function Chat() {
             borderRadius:2,
           }}
           primary={msg.text} 
-          secondary={msg.user}
+          secondary={msg.userId}
           secondaryTypographyProps={{color:"primary"}}
         />
       </ListItem>

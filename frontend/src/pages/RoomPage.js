@@ -24,6 +24,7 @@ import { useSnackbar } from "notistack";
 import { useDarkTheme } from "../theme/ThemeContextProvider";
 import DifficultyChip from "../components/DifficultyChip";
 import TagChip from "../components/TagChip";
+import Chat from "../components/Chat";
 
 export const CODE_CACHE_KEY = "code-cache";
 
@@ -214,7 +215,7 @@ function RoomPage() {
               flex: 2,
             })}
           >
-            <Typography variant="h4">Here goes the chat</Typography>
+            <Chat />
           </Paper>
         </Box>
         <Box
