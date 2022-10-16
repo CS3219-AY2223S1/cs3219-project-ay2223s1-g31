@@ -59,7 +59,7 @@ function ProfilePage() {
     {
       field: "roomId",
       headerName: "Room ID",
-      width: 140,
+      width: 120,
     },
     {
       field: "difficulty",
@@ -87,17 +87,19 @@ function ProfilePage() {
     {
       field: "question",
       headerName: "Question",
-      width: 160,
+      minWidth: 180,
+      // flex: true,
     },
     {
       field: "tags",
       headerName: "Tags",
       sortable: false,
-      width: 240,
+      minWidth: 240,
+      flex: true,
       renderCell: ({ value }) => (
         <Stack direction={"row"} gap={1}>
           {value.map((t) => (
-            <TagChip tag={t} size={"small"} />
+            <TagChip key={t} tag={t} size={"small"} />
           ))}
         </Stack>
       ),
@@ -239,15 +241,15 @@ function ProfilePage() {
             rows={rows}
             columns={columns}
             rowHeight={50}
-            pageSize={10}
-            rowsPerPageOptions={[10, 50, 100]}
+            // pageSize={10}
+            rowsPerPageOptions={[100, 50, 25, 10]}
             autoHeight
             disableSelectionOnClick
             disableColumnMenu
             components={{
               Toolbar: GridToolbar,
             }}
-            onCellClick={({ value }, e) => navigator.clipboard.writeText(value)}
+            onCellClick={({ value }, _) => navigator.clipboard.writeText(value)}
             sx={{ borderRadius: 2 }}
           />
         )}

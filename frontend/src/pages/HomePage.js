@@ -19,7 +19,7 @@ function HomePage() {
       <Box
         sx={(theme) => ({
           backgroundColor:
-            theme.palette.mode === "dark" ? "#000000cc" : "#ffffffcc",
+            theme.palette.mode === "dark" ? "#000000aa" : "#ffffffcc",
           position: "absolute",
           top: 60,
           height: "100vh",

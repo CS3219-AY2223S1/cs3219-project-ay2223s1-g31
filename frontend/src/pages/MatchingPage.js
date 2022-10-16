@@ -180,7 +180,15 @@ function MatchingPage() {
     <Box>
       <Typography variant="h3">Choose your difficulty</Typography>
       <form onSubmit={handleFindMatch}>
-        <FormControl disabled={isFinding}>
+        <FormControl
+          disabled={isFinding}
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            gap: 3,
+          }}
+        >
           <DifficultyOptions
             difficulty={difficulty}
             setDifficulty={setDifficulty}
@@ -188,7 +196,7 @@ function MatchingPage() {
           <Button
             type="submit"
             variant="contained"
-            sx={{ maxWidth: 200 }}
+            sx={{ width: "100%", maxWidth: 400 }}
             disabled={isFinding}
           >
             Find Match
@@ -244,9 +252,9 @@ function DifficultyOptions({ difficulty, setDifficulty }) {
   const optionTitles = ["easy", "medium", "hard"];
   const optionIcons = ["👶", "🧑‍🦱", "👴"];
   const optionContent = [
-    "Really easy questions for beginners.",
-    "It's getting a bit harder but not too hard.",
-    "Wow, so you are professional right?",
+    "Really easy questions for baby beginners 🥳🥳",
+    "The questions are getting a bit harder but not too hard, you can still do it 💪💪",
+    "Match with professional competitive programmers all around the globe 🌏🌍🌎",
   ];
   return (
     <Stack
@@ -265,7 +273,7 @@ function DifficultyOptions({ difficulty, setDifficulty }) {
             sx={(theme) => ({
               flexBasis: "300px",
               flexShrink: 1,
-              height: 200,
+              height: 260,
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
@@ -289,7 +297,7 @@ function DifficultyOptions({ difficulty, setDifficulty }) {
                 titleTypographyProps={{ variant: "h4" }}
               />
               <CardContent>
-                <Typography>{optionContent[idx]}</Typography>
+                <Typography fontSize={18}>{optionContent[idx]}</Typography>
               </CardContent>
             </CardActionArea>
           </Card>
