@@ -82,7 +82,8 @@ export async function ormAddMessageToRoom(roomId, message) {
     currMessagesArray.push(message)
 
     await redisClient.hSet(`room:${roomId}`, 'messages', JSON.stringify(currMessagesArray))
-
+    await redisClient.expire(`room:${roomId}`, 'messages')
+    
     return true
   } catch (error) {
     console.error(error.message)
