@@ -1,90 +1,140 @@
 import {
+  Avatar,
   Box,
   Button,
+  FormControl,
   List,
   ListItem,
+  ListItemAvatar,
   ListItemText,
   TextField,
 } from "@mui/material";
-import React, { useEffect, useState } from "react";
+import SendIcon from "@mui/icons-material/Send";
+import React, { useEffect, useRef, useState } from "react";
+import { useParams } from "react-router-dom";
 import { io } from "socket.io-client";
+import { URI_COMM_SVC } from "../configs";
 import { useAuth } from "../utils/AuthContext";
-
-const COMM_SVC_URL = "http://localhost:8002";
-const socket = io(COMM_SVC_URL, {
-  transports: ["websocket"],
-});
+import { stringAvatar } from "../utils/avatar-utils";
 
 function Chat() {
   const { auth } = useAuth();
-  const [messages, setMessages] = useState([
-    {
-      user: "admin",
-      text: "Welcome to PeerPrep chat :)",
-    },
-  ]);
+  const { roomId } = useParams();
+  const [socket, setSocket] = useState(null);
+  const [messages, setMessages] = useState([]);
+  const inputMessageRef = useRef('');
+  const bottomRef = useRef(null);
 
-  const [inputMessage, setInputMessage] = useState("");
-  const [roomId, setRoomId] = useState(0);
+  const sendMessage = (e) => {
+    e.preventDefault();
+    
+    if (!inputMessageRef.current.value) return
 
-  const sendMessage = () => {
-    let msg = { user: auth.username, text: inputMessage };
-    setMessages((old) => [...old, msg]);
+    let message = { 
+      userId: auth.username, 
+      text: inputMessageRef.current.value
+    };
 
-    socket.emit("send-message", msg, roomId);
-
-    setInputMessage("");
+    appendMessage(message)
+    socket.emit("send-message", { roomId, message });
+    e.target.reset()
   };
 
-  const receiveMessage = (message) => {
-    setMessages((old) => [...old, message]);
+  const appendMessage = (message) => {
+    setMessages((currMessages) => [...currMessages, message]);
   };
 
   useEffect(() => {
+    const socket = io(URI_COMM_SVC, {
+      transports: ["websocket"],
+    })
+
+    setSocket(socket)
+    
+    socket.emit("join-room", 
+      { roomId, userId: auth.username },
+      setMessages);
+
     socket.on("receive-message", (message) => {
-      receiveMessage(message);
+      appendMessage(message);
     });
 
-    socket.emit("join-room", roomId);
   }, []);
+
+  useEffect(() => {
+    bottomRef.current?.scrollIntoView({behavior: 'smooth'});
+  },[messages])
 
   const getChatMessages = () => {
     return messages.map((msg, id) => (
-      <ListItem key={id}>
-        <ListItemText primary={msg.text} secondary={msg.user} />
+      <ListItem
+        sx={{}}
+        key={id}
+      >
+        <ListItemAvatar>
+          <Avatar
+            {...stringAvatar(msg.userId)}
+            sx={{ width: 36, height: 36, fontSize: 24 }}
+          />
+        </ListItemAvatar>
+        <ListItemText
+          sx={{
+            overflowWrap:"break-word",
+            p:2,
+            bgcolor:"grey.100",
+            borderRadius:2,
+          }}
+          primary={msg.text} 
+          secondary={msg.userId}
+          secondaryTypographyProps={{color:"primary"}}
+        />
       </ListItem>
     ));
   };
 
   return (
+    <Box sx={{height:"500px", width:"600px"}}>
     <Box
       sx={{
-        height: "75%",
-        width: "40%",
+        height:"100%",
+        width:"100%",
+        display:"flex",
+        flexDirection:"column",
       }}
     >
-      <Box
+      <List
         sx={{
-          bgcolor: "grey.50",
-          borderRadius: "16px",
-          minHeight: "80%",
+          flexGrow:1,
+          width:"100%",
+          overflowY:"scroll"
         }}
       >
-        <List>{getChatMessages()}</List>
-      </Box>
-      <Box sx={{ display: "flex" }}>
-        <TextField
-          sx={{ flexGrow: 3 }}
-          id="message-input"
-          label="Message"
-          variant="outlined"
-          value={inputMessage}
-          onChange={(e) => setInputMessage(e.target.value)}
-        />
-        <Button variant="contained" onClick={sendMessage}>
-          SEND
-        </Button>
-      </Box>
+        {getChatMessages()}
+        <div ref={bottomRef}></div>
+      </List>
+      <form onSubmit={sendMessage} autoComplete="off">
+        <FormControl
+          sx={{
+            display:"flex", 
+            flexDirection:"row",
+          }}
+        >
+          <TextField
+            fullWidth
+            label="Message"
+            inputRef={inputMessageRef}
+            variant="outlined"
+            />
+          <Button 
+            endIcon={<SendIcon />}
+            type="submit"
+            variant="contained" 
+          >
+            Send
+          </Button>
+        </FormControl>
+      </form>
+    </Box>
     </Box>
   );
 }
