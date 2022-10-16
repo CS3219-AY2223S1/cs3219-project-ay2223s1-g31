@@ -1,6 +1,9 @@
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
+import { joinRoomHandler } from "./handlers/join-room-handler.js";
+import { leaveRoomHandler } from "./handlers/leave-room-handler.js";
+import { sendMessageHandler } from "./handlers/send-message-handler.js";
 
 const PORT = 8002;
 
@@ -16,19 +19,9 @@ export const io = new Server(server, {
 io.on("connection", (socket) => {
   console.log(`New client connected: ${socket.id}`);
 
-  socket.on("join-room", (roomId) => {
-    console.log(`${socket.id} joining room ${roomId}`);
-    socket.join(roomId);
-  });
-
-  socket.on("send-message", (message, roomId) => {
-    console.log(`${message.user} sending message to room ${roomId}`);
-    socket.to(roomId).emit("receive-message", message);
-  });
-
-  socket.on("leave-room", (roomId) => {
-    socket.leave(roomId);
-  });
+  socket.on("join-room", joinRoomHandler(io, socket));
+  socket.on("send-message", sendMessageHandler(io, socket));
+  socket.on("leave-room", leaveRoomHandler(io, socket));
 });
 
 server.listen(PORT, () => {
