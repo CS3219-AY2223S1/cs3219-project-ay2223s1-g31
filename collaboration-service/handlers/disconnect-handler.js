@@ -1,6 +1,7 @@
 import {
   ormAddUsersToRoom,
   ormDeleteAllUsersFromRoom,
+  ormDeleteConnection,
   ormDeleteRoomInfo,
   ormGetAllUsersInRoom,
   ormGetConnection,
@@ -11,6 +12,7 @@ export function disconnectHandler(io, socket) {
     const { roomId, username } = await ormGetConnection(socket.id);
     const users = await ormGetAllUsersInRoom(roomId);
     const newUsers = users.filter((u) => u != username);
+    await ormDeleteConnection(socket.id);
     console.log("new users: " + newUsers);
     if (newUsers.length > 0) {
       await ormDeleteAllUsersFromRoom(roomId);

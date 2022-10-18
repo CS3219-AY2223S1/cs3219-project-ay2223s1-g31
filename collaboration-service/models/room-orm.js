@@ -140,3 +140,12 @@ export async function ormDeleteRoomQuestion(roomId) {
     return { err };
   }
 }
+
+export async function ormDeleteConnection(socketId) {
+  try {
+    const result = await redisClient.del(socketId);
+    return true;
+  } catch (err) {
+    return { err };
+  }
+}
