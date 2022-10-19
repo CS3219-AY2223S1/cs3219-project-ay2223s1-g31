@@ -97,8 +97,11 @@ function Layout({ children }) {
                 <span>Hi, {auth.username}</span>
                 <IconButton onClick={handleAvatarClick}>
                   <Avatar
-                    {...stringAvatar(auth.username)}
-                    sx={{ width: 30, height: 30, fontSize: 14 }}
+                    {...stringAvatar(auth.username, {
+                      width: 30,
+                      height: 30,
+                      fontSize: 14,
+                    })}
                   />
                 </IconButton>
                 <Menu

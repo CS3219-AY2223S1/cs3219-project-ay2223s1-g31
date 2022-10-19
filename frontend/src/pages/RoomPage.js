@@ -157,6 +157,7 @@ function RoomPage() {
     });
     socket.on("room:connection", (users) => {
       setUsersInRoom(users);
+      // enqueueSnackbar(`Users in room: ${users.join(", ")}`);
     });
     socket.on("disconnect", () => {
       socket.emit("disconnect-from-room", { roomId });
@@ -192,17 +193,26 @@ function RoomPage() {
         paddingRight={4}
         paddingLeft={4}
         display={"flex"}
-        height={"600px"}
+        height={"80vh"}
+        maxHeight={"640px"}
         gap={1}
       >
-        <Box flexShrink={2} display={"flex"} flexDirection={"column"} gap={1}>
+        <Box
+          flexBasis={"480px"}
+          maxWidth={"480px"}
+          flexShrink={2}
+          display={"flex"}
+          flexDirection={"column"}
+          gap={1}
+        >
           <Paper
             variant="outlined"
             sx={(theme) => ({
               padding: "20px 20px",
-              overflow: "scroll",
+              overflowY: "scroll",
               borderColor: theme.palette.grey[600],
-              flex: 3,
+              flex: 2,
+              width: "100%",
             })}
           >
             <QuestionDisplay question={question} />
@@ -210,16 +220,17 @@ function RoomPage() {
           <Paper
             variant="outlined"
             sx={(theme) => ({
-              overflow: "scroll",
+              overflow: "hidden",
               borderColor: theme.palette.grey[600],
               flex: 2,
             })}
           >
-            <Chat />
+            <Chat inRoomUsers={usersInRoom} />
           </Paper>
         </Box>
         <Box
           flexBasis={"720px"}
+          maxWidth={"720px"}
           flexShrink={3}
           display={"flex"}
           flexDirection={"column"}
@@ -228,7 +239,7 @@ function RoomPage() {
           <Paper
             variant="outlined"
             sx={(theme) => ({
-              overflow: "scroll",
+              overflowY: "scroll",
               maxWidth: "720px",
               borderColor: theme.palette.grey[600],
               flex: 3,
@@ -300,9 +311,9 @@ function QuestionDisplay({ question }) {
         ))}
       </Stack>
       {/* <Typography>Users in room: {usersInRoom.join(", ")}</Typography> */}
-      <div className={isDarkTheme ? "markdown-dark" : "markdorm-light"}>
+      <Box id={isDarkTheme ? "markdown-dark" : "markdorm-light"}>
         {htmlParse(marked(question.question))}
-      </div>
+      </Box>
     </>
   );
 }

@@ -160,7 +160,7 @@ function ProfilePage() {
   useEffect(() => {
     (async () => {
       try {
-        const res = await axios.get(URL_HISTORY_SVC + "/" + auth.username);
+        const res = await axios.get(URL_HISTORY_SVC + "/");
         setRows(res.data);
       } catch (err) {
         console.log(err);
@@ -191,8 +191,11 @@ function ProfilePage() {
         }}
       >
         <Avatar
-          {...stringAvatar(auth?.username)}
-          sx={{ width: 160, height: 160, fontSize: 64 }}
+          {...stringAvatar(auth?.username, {
+            width: 160,
+            height: 160,
+            fontSize: 64,
+          })}
         />
         <Box>
           <ListItem>

@@ -2,6 +2,7 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import http from "http";
+import "dotenv/config";
 import { Server } from "socket.io";
 import {
   createMatchEntry,
@@ -13,7 +14,7 @@ import {
   ormDeleteMatchEntry,
 } from "./model/match-orm.js";
 
-const FRONTEND_ORIGIN = "http://localhost:3000";
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
 const PORT = process.env.PORT || 8001;
 
 const app = express();
@@ -52,6 +53,7 @@ io.on("connection", (socket) => {
     const { username, difficulty, start_time, socket_id } = data;
     if (!username || !difficulty || !start_time || !socket_id) {
       socket.emit("match-failure");
+      return;
     }
     try {
       const valid_entries = await ormListValidMatchEntriesByDifficulty(
@@ -97,13 +99,11 @@ io.on("connection", (socket) => {
       user2_socket.join(room_id);
       console.log("Created room " + room_id);
 
-      io.sockets
-        .in(room_id)
-        .emit("match-success", {
-          room_id,
-          username1: first_valid_entry["username"],
-          username2: username,
-        });
+      io.sockets.in(room_id).emit("match-success", {
+        room_id,
+        username1: first_valid_entry["username"],
+        username2: username,
+      });
     } catch (err) {
       console.log(err);
       socket.emit("match-failure");

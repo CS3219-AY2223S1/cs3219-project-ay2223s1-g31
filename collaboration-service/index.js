@@ -5,6 +5,7 @@ import http from "http";
 import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import chalk from "chalk";
+import "dotenv/config";
 import {
   createRoom,
   deleteRoom,
@@ -18,8 +19,8 @@ import { leaveRoomHandler } from "./handlers/leave-room-handler.js";
 import { codeExec } from "./controllers/code-controller.js";
 import { verifyAccessToken } from "./middlewares/verifyAccessToken.js";
 
-const FRONTEND_ORIGIN = "http://localhost:3000";
-const PORT = 8050;
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
+const PORT = process.env.PORT || 8050;
 
 const app = express();
 const server = http.createServer(app);

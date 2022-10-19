@@ -12,7 +12,7 @@ function HomePage() {
         height: "100vh",
         width: "100vw",
         overflowY: "hidden",
-        background: "url(http://localhost:3000/1228014.png)",
+        background: "url(1228014.png)",
         backgroundSize: "cover",
       }}
     >

@@ -11,7 +11,6 @@ import {
   DialogTitle,
   FormControl,
   Stack,
-  TextField,
   Typography,
 } from "@mui/material";
 import React, { useEffect, useState } from "react";
@@ -71,12 +70,16 @@ function MatchingPage() {
         localStorage.setItem("room_id", room_id);
         console.log("RESET match-success " + intervalId);
         if (auth.username === username1) {
-          await createRoom(room_id, username1, username2);
+          const res = await createRoom(room_id, username1, username2);
+          console.log(res);
+          console.log(!res);
         }
         resetLoading();
         setRoomId(room_id);
       } catch (err) {
+        console.error(err);
         enqueueSnackbar("Cannot send matching request!", { variant: "error" });
+        resetLoading();
       }
     });
 
@@ -140,26 +143,20 @@ function MatchingPage() {
       }
       const response1 = await axios.get(URL_QUESTION_SVC + "/" + difficulty);
       const question = response1.data;
-      const response = await axios.post(URL_COLLAB_SVC + "/room", {
+      const response2 = await axios.post(URL_COLLAB_SVC + "/room", {
         roomId,
         username1,
         username2,
         question,
       });
-      // console.log("HISTORY CREATING...");
-      // console.log({
-      //   username1,
-      //   username2,
-      //   roomId,
-      //   question,
-      // });
-      await axios.post(URL_HISTORY_SVC, {
+      const response3 = await axios.post(URL_HISTORY_SVC, {
         username1,
         username2,
         roomId,
         question,
       });
-      return response.data;
+      console.log(response2);
+      return { ...response2.data };
     } catch (err) {
       console.log(err);
       enqueueSnackbar(err.response.data.message);

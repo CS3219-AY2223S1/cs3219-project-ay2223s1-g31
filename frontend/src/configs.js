@@ -5,9 +5,8 @@ export const URI_COLLAB_SVC =
   process.env.URI_COLLAB_SVC || "http://localhost:8050";
 const URI_QUESTION_SVC =
   process.env.URI_QUESTION_SVC || "http://localhost:8051";
-const URI_HISTORY_SVC = process.env.URI_QUESTION_SVC || "http://localhost:8052";
-export const URI_COMM_SVC = 
-  process.env.URI_COMM_SVC || "http://localhost:8002";
+const URI_HISTORY_SVC = process.env.URI_HISTORY_SVC || "http://localhost:8052";
+export const URI_COMM_SVC = process.env.URI_COMM_SVC || "http://localhost:8002";
 
 const PREFIX_USER_SVC = "/api/user";
 const PREFIX_MATCH_SVC = "/api/matching";

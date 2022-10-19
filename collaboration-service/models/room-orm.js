@@ -2,7 +2,9 @@ import { createClient } from "redis";
 import moment from "moment";
 import chalk from "chalk";
 
-const redisClient = createClient();
+const redisClient = createClient({
+  url: `redis://${process.env.REDIS_HOST}:6379`,
+});
 const EXPIRATION = 60 * 60 * 24;
 
 redisClient

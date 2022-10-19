@@ -13,13 +13,17 @@ import {
 import { authenticateToken } from "./middlewares/authenticateToken.js";
 
 const FRONTEND_ORIGIN = "http://localhost:3000";
+const COLAB_SVC_URI = "http://localhost:8050";
+const HISTORY_SVC_URI = "http://localhost:8052";
+
+const PORT = process.env.PORT || 8000;
 
 const app = express();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(
   cors({
-    origin: FRONTEND_ORIGIN,
+    origin: [FRONTEND_ORIGIN, COLAB_SVC_URI, HISTORY_SVC_URI],
     credentials: true,
   })
 );
@@ -51,4 +55,4 @@ router.get("/protected", authenticateToken, (req, res) => {
   res.status(200).json({ message: "Authenticated", user: req.user });
 });
 
-app.listen(8000, () => console.log("user-service listening on port 8000"));
+app.listen(PORT, () => console.log(`user-service listening on port ${PORT}`));

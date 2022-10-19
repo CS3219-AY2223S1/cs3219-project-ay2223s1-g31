@@ -7,6 +7,7 @@ import {
   createHistoryEntry,
   getHistoryEntry,
 } from "./controllers/history-controller.js";
+import { verifyAccessToken } from "./middlewares/verifyAccessToken.js";
 
 const FRONTEND_ORIGIN = "http://localhost:3000";
 const PORT = process.env.PORT || 8052;
@@ -32,7 +33,7 @@ app.use("/api/history", router).all((_, res) => {
 
 router.get("/ping", (_, res) => res.send("Hello World from history-service"));
 
-router.get("/:username", getHistoryEntry);
+router.get("/", verifyAccessToken, getHistoryEntry);
 router.post("/", createHistoryEntry);
 
 app.listen(PORT, () =>

@@ -1,0 +1,51 @@
+[
+  {
+    "title": "Two sum",
+    "difficulty": "easy",
+    "question": "Given an array of integers `nums` and an integer `target`, return indices of the two numbers such that they add up to `target`.\nYou may assume that each input would have **exactly one solution**, and you may not use the same element twice.\nYou can return the answer in any order.\n\n### Example 1:\n\n```\nInput: nums = [2,7,11,15], target = 9\nOutput: [0,1]\nExplanation: Because nums[0] + nums[1] == 9, we return [0, 1].\n```\n\n### Example 2:\n\n```\nInput: nums = [3,2,4], target = 6\nOutput: [1,2]\n```\n\n### Example 3:\n\n```\nInput: nums = [3,3], target = 6\nOutput: [0,1]\n```\n \n### Constraints:\n\n- `2 <= nums.length <= 10^4`\n- `-10^9 <= nums[i] <= 10^9`\n- `-10^9 <= target <= 10^9`\n- **Only one valid answer exists.**\n\n**Follow-up:** Can you come up with an algorithm that is less than O(n2) time complexity?",
+    "template": "def twoSum(nums: list[int], target: int) -> list[int]:\n  pass",
+    "tags": ["array", "loop"]
+  },
+  {
+    "title": "Climbing Stairs",
+    "difficulty": "easy",
+    "question": "You are climbing a staircase. It takes `n` steps to reach the top.\n\nEach time you can either climb `1` or `2` steps. In how many distinct ways can you climb to the top?\n\n \n\n### Example 1:\n\n```\nInput: n = 2\nOutput: 2\nExplanation: There are two ways to climb to the top.\n1. 1 step + 1 step\n2. 2 steps\n```\n\n### Example 2:\n\n```\nInput: n = 3\nOutput: 3\nExplanation: There are three ways to climb to the top.\n1. 1 step + 1 step + 1 step\n2. 1 step + 2 steps\n3. 2 steps + 1 step\n ```\n\n### Constraints:\n\n```\n1 <= n <= 45\n```",
+    "template": "def climbStairs(n: int) -> int:\n  pass",
+    "tags": ["recursion", "memoize"]
+  },
+  {
+    "title": "Contains Duplicate",
+    "difficulty": "easy",
+    "question": "Given an integer array `nums`, return true if any value appears at least twice in the array, and return false if every element is distinct.\n\n### Example 1:\n\n```\nInput: nums = [1,2,3,1]\nOutput: true\n```\n\n### Example 2:\n\n```\nInput: nums = [1,2,3,4]\nOutput: false\n```\n\n### Example 3:\n\n```\nInput: nums = [1,1,1,3,3,4,3,2,4,2]\nOutput: true\n```\n\n### Constraints:\n\n- `1 <= nums.length <= 10^5`\n- `-109 <= nums[i] <= 10^9`",
+    "template": "def containsDuplicate(nums: list[int]) -> bool:\n  pass",
+    "tags": ["array", "set", "loop"]
+  },
+  {
+    "title": "Coin Change",
+    "difficulty": "medium",
+    "question": "You are given an integer array `coins` representing coins of different denominations and an integer `amount` representing a total amount of money.\n\nReturn the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return `-1`.\n\nYou may assume that you have an infinite number of each kind of coin.\n\n### Example 1:\n\n```\nInput: coins = [1,2,5], amount = 11\nOutput: 3\nExplanation: 11 = 5 + 5 + 1\n```\n\n### Example 2:\n\n```\nInput: coins = [2], amount = 3\nOutput: -1\n```\n\n### Example 3:\n\n```\nInput: coins = [1], amount = 0\nOutput: 0\n```\n\n### Constraints:\n\n- `1 <= coins.length <= 12`\n- `1 <= coins[i] <= 2^31 - 1`\n- `0 <= amount <= 10^4`",
+    "template": "def coinChange(coins: list[int], amount: int) -> int:\n  pass",
+    "tags": ["memoize", "recursion", "permutation"]
+  },
+  {
+    "title": "Merge k Sorted Lists",
+    "difficulty": "hard",
+    "question": "You are given an array of k linked-lists `lists`, each linked-list is sorted in ascending order.\n\nMerge all the linked-lists into one sorted linked-list and return it.\n\n### Example 1:\n\n```\nInput: lists = [[1,4,5],[1,3,4],[2,6]]\nOutput: [1,1,2,3,4,4,5,6]\nExplanation: The linked-lists are:\n[\n  1->4->5,\n  1->3->4,\n  2->6\n]\nmerging them into one sorted list:\n1->1->2->3->4->4->5->6\n```\n\n### Example 2:\n\n```\nInput: lists = []\nOutput: []\n```\n\n### Example 3:\n\n```\nInput: lists = [[]]\nOutput: []\n```\n\n### Constraints:\n\n- `k == lists.length`\n- `0 <= k <= 10^4`\n- `0 <= lists[i].length <= 500`\n- `-10^4 <= lists[i][j] <= 10^4`\n- `lists[i]` is sorted in ascending order.\n- The sum of `lists[i].length` will not exceed 10^4.",
+    "template": "def mergeKLists(lists):\n  pass",
+    "tags": ["merge", "array", "list"]
+  },
+  {
+    "title": "Maximum Product Subarray",
+    "difficulty": "medium",
+    "question": "Given an integer array `nums`, find a contiguous non-empty subarray within the array that has the largest product, and return the product.\n\nThe test cases are generated so that the answer will fit in a **32-bit** integer.\n\nA **subarray** is a contiguous subsequence of the array.\n\n### Example 1:\n\n```\nInput: nums = [2,3,-2,4]\nOutput: 6\nExplanation: [2,3] has the largest product 6.\n```\n\n### Example 2:\n\n```\nInput: nums = [-2,0,-1]\nOutput: 0\nExplanation: The result cannot be 2, because [-2,-1] is not a subarray.\n```\n\n### Constraints:\n\n- `1 <= nums.length <= 2 * 10^4`\n- `-10 <= nums[i] <= 10`\n- The product of any prefix or suffix of nums is **guaranteed** to fit in a **32-bit** integer.",
+    "template": "def maxProduct(nums: list[int]) -> int:\n  pass",
+    "tags": ["array", "max", "subarray"]
+  },
+  {
+    "title": "Longest Valid Parentheses",
+    "difficulty": "hard",
+    "question": "Given a string containing just the characters `'('` and `')'`, find the length of the longest valid (well-formed) parentheses substring.\n \n\n### Example 1:\n\n```\nInput: s = \"(()\"\nOutput: 2\nExplanation: The longest valid parentheses substring is \"()\".\n```\n\n### Example 2:\n\n```\nInput: s = \")()())\"\nOutput: 4\nExplanation: The longest valid parentheses substring is \"()()\".\n```\n\n### Example 3:\n\n```\nInput: s = \"\"\nOutput: 0\n ```\n\n### Constraints:\n\n- `0 <= s.length <= 3 * 10^4`\n- `s[i]` is `'('`, or `')'`.",
+    "template": "def longestValidParentheses(s: str) -> int:\n  pass",
+    "tags": ["recursion", "string"]
+  }
+]
