@@ -54,7 +54,7 @@ router.get("/roomQuestion/:roomId", verifyAccessToken, getRoomQuestion);
 router.delete("/room/:roomId", verifyAccessToken, deleteRoom);
 
 // code routes
-router.post("/code", codeExec);
+router.post("/code", verifyAccessToken, codeExec);
 
 io.on("connection", (socket) => {
   console.log("Connected " + socket.id);

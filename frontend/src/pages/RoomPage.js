@@ -47,8 +47,11 @@ function RoomPage() {
   const [code, setCode] = useState(question.template);
   const [usersInRoom, setUsersInRoom] = useState([]);
   const [roomFound, setRoomFound] = useState(false);
-  const [output, setOutput] = useState([]);
-  const [outputError, setOutputError] = useState("");
+  const initOutput = {
+    output: "",
+    cpuTime: "",
+  };
+  const [output, setOutput] = useState(initOutput);
 
   const emitCodeChange = (socket, value) => {
     socket.emit("code-changed", value);
@@ -90,26 +93,17 @@ function RoomPage() {
 
   const handleExecCode = async () => {
     try {
-      setOutput(["Executing..."]);
-      setOutputError("");
+      setOutput({ cpuTime: "", output: "Executing..." });
       const response = await axios.post(URL_COLLAB_SVC + "/code", {
         code,
       });
+      setOutput(initOutput);
       console.log(response.data);
-      if (response.data.error) {
-        setOutputError(response.data.error);
-      } else if (response.data.output) {
-        setOutputError("");
-        setOutput(response.data.output);
-      } else {
-        setOutputError("");
-        setOutput([]);
-      }
+      setOutput(response.data);
     } catch (err) {
       console.log(err);
       enqueueSnackbar("Error executing code!", { variant: "error" });
-      setOutput([]);
-      setOutputError("");
+      setOutput(initOutput);
       return;
     }
   };
@@ -258,16 +252,18 @@ function RoomPage() {
               padding: 2,
             })}
           >
-            {outputError ? (
-              <Typography fontFamily={"Fira Code"} color={"error"}>
-                {outputError}
-              </Typography>
-            ) : (
-              output.map((o, id) => (
-                <Typography fontFamily={"Fira Code"} key={id}>
-                  {o}
+            {output.output && (
+              <>
+                <Typography fontFamily={"Fira Code"}>
+                  {output.output}
                 </Typography>
-              ))
+                <br />
+              </>
+            )}
+            {output.cpuTime && (
+              <Typography fontFamily={"Fira Code"}>
+                Finished in {output.cpuTime}s
+              </Typography>
             )}
           </Paper>
         </Box>
