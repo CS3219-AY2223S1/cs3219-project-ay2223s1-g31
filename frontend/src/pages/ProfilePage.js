@@ -13,10 +13,16 @@ import {
   ListItemIcon,
   ListItemText,
   Stack,
+  IconButton,
+  Menu,
+  MenuItem,
 } from "@mui/material";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
 import PersonIcon from "@mui/icons-material/Person";
 import EventIcon from "@mui/icons-material/Event";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
+import LockResetIcon from "@mui/icons-material/LockReset";
+import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import moment from "moment";
@@ -40,6 +46,7 @@ function ProfilePage() {
     confirmNewPassword: "",
   });
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [anchorEl, setAnchorEl] = useState(null);
   const [rows, setRows] = useState([]);
   const columns = [
     {
@@ -115,6 +122,13 @@ function ProfilePage() {
     });
   };
 
+  const handleMenuClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleMenuClose = () => {
+    setAnchorEl(null);
+  };
+
   const deleteAccount = async () => {
     try {
       const res = await axios.delete(URL_USER_SVC);
@@ -127,6 +141,7 @@ function ProfilePage() {
   };
 
   const handleDeleteAccount = () => {
+    handleMenuClose();
     confirm({
       title: "Delete account?",
       description:
@@ -188,6 +203,7 @@ function ProfilePage() {
           flexWrap: "wrap",
           gap: 6,
           borderRadius: 2,
+          position: "relative",
         }}
       >
         <Avatar
@@ -221,6 +237,35 @@ function ProfilePage() {
             </ListItemText>
           </ListItem>
         </Box>
+        <IconButton
+          sx={{ position: "absolute", top: 10, right: 10 }}
+          onClick={handleMenuClick}
+        >
+          <MoreVertIcon />
+        </IconButton>
+        <Menu
+          anchorEl={anchorEl}
+          open={!!anchorEl}
+          onClose={handleMenuClose}
+          MenuListProps={{
+            "aria-labelledby": "basic-button",
+          }}
+        >
+          <MenuItem
+            onClick={() => {
+              setDialogOpen(true);
+              handleMenuClose();
+            }}
+          >
+            <LockResetIcon sx={{ mr: 1 }} /> Change password
+          </MenuItem>
+          <MenuItem
+            onClick={handleDeleteAccount}
+            sx={(theme) => ({ color: theme.palette.error.main })}
+          >
+            <DeleteForeverIcon sx={{ mr: 1 }} /> Delete account
+          </MenuItem>
+        </Menu>
       </Paper>
       <Paper
         variant="outlined"
@@ -253,67 +298,74 @@ function ProfilePage() {
               Toolbar: GridToolbar,
             }}
             onCellClick={({ value }, _) => navigator.clipboard.writeText(value)}
-            sx={{ borderRadius: 2 }}
+            sx={{ borderRadius: 2, border: "none" }}
           />
         )}
       </Paper>
-      <Box display={"flex"} justifyContent={"flex-end"} gap={1} mt={1}>
-        <Button onClick={() => setDialogOpen(true)}>Change password</Button>
-        <Button color="error" onClick={handleDeleteAccount}>
-          Delete account
-        </Button>
-      </Box>
       <Dialog
         open={dialogOpen}
         onClose={handleDialogClose}
         fullWidth
-        maxWidth={"sm"}
+        maxWidth={"xs"}
       >
         <DialogTitle>Change password</DialogTitle>
-        <DialogContent sx={{ display: "flex", flexDirection: "column" }}>
-          <TextField
-            label="Old password"
-            variant="standard"
-            required
-            value={formValue.oldPassword}
-            onChange={(e) =>
-              setFormValue((formValue) => ({
-                ...formValue,
-                oldPassword: e.target.value,
-              }))
-            }
-            type="password"
-            // sx={{ marginBottom: "1rem" }}
-            autoFocus
-          />
-          <TextField
-            label="New password"
-            variant="standard"
-            required
-            value={formValue.newPassword}
-            onChange={(e) =>
-              setFormValue((formValue) => ({
-                ...formValue,
-                newPassword: e.target.value,
-              }))
-            }
-            type="password"
-            // sx={{ marginBottom: "2rem" }}
-          />
-          <TextField
-            label="Confirm new password"
-            variant="standard"
-            required
-            value={formValue.confirmNewPassword}
-            onChange={(e) =>
-              setFormValue((formValue) => ({
-                ...formValue,
-                confirmNewPassword: e.target.value,
-              }))
-            }
-            type="password"
-            // sx={{ marginBottom: "2rem" }}
-          />
+        <DialogContent
+          sx={{ display: "flex", justifyContent: "center", width: "100%" }}
+        >
+          <Box
+            sx={{
+              display: "flex",
+              flexDirection: "column",
+              gap: 1,
+              width: "100%",
+              maxWidth: 300,
+            }}
+          >
+            <TextField
+              label="Old password"
+              variant="outlined"
+              required
+              value={formValue.oldPassword}
+              onChange={(e) =>
+                setFormValue((formValue) => ({
+                  ...formValue,
+                  oldPassword: e.target.value,
+                }))
+              }
+              type="password"
+              sx={{ marginTop: "1rem" }}
+              autoFocus
+              fullWidth
+            />
+            <TextField
+              label="New password"
+              variant="outlined"
+              required
+              value={formValue.newPassword}
+              onChange={(e) =>
+                setFormValue((formValue) => ({
+                  ...formValue,
+                  newPassword: e.target.value,
+                }))
+              }
+              type="password"
+              fullWidth
+            />
+            <TextField
+              label="Confirm new password"
+              variant="outlined"
+              required
+              value={formValue.confirmNewPassword}
+              onChange={(e) =>
+                setFormValue((formValue) => ({
+                  ...formValue,
+                  confirmNewPassword: e.target.value,
+                }))
+              }
+              type="password"
+              fullWidth
+            />
+          </Box>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDialogClose}>Cancel</Button>

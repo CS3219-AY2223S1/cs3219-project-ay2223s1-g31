@@ -1,9 +1,10 @@
-import { Typography } from "@mui/material";
-import { Box } from "@mui/system";
+import { Button, Typography, Box } from "@mui/material";
+import KeyboardDoubleArrowRightIcon from "@mui/icons-material/KeyboardDoubleArrowRight";
 import React from "react";
-// import backgroundURL from "../../public/";
+import { useNavigate } from "react-router-dom";
 
 function HomePage() {
+  const navigate = useNavigate();
   return (
     <Box
       sx={{
@@ -40,6 +41,54 @@ function HomePage() {
         <Typography variant={"h3"} fontWeight={500} fontFamily={"Fira Code"}>
           An interview preparation platform and peer matching system
         </Typography>
+        <Box display={"flex"} flexWrap={"wrap"} gap={4} mt={8}>
+          <Button
+            size="large"
+            variant="outlined"
+            onClick={() => navigate("/signup")}
+            disableRipple
+            sx={{
+              width: 200,
+              height: 54,
+              fontSize: 20,
+              borderWidth: 3,
+              fontWeight: 600,
+              "&:hover svg": {
+                transform: "translateX(16px)",
+              },
+            }}
+            color={"inherit"}
+          >
+            Sign up
+            <KeyboardDoubleArrowRightIcon
+              fontSize="medium"
+              sx={{ ml: 1, transition: "all 0.5s ease" }}
+            />
+          </Button>
+          <Button
+            size="large"
+            variant="outlined"
+            onClick={() => navigate("/login")}
+            disableRipple
+            sx={{
+              width: 200,
+              height: 54,
+              fontSize: 20,
+              borderWidth: 3,
+              fontWeight: 600,
+              "&:hover svg": {
+                transform: "translateX(16px)",
+              },
+            }}
+            color={"inherit"}
+          >
+            Login
+            <KeyboardDoubleArrowRightIcon
+              fontSize="medium"
+              sx={{ ml: 1, transition: "all 0.5s ease" }}
+            />
+          </Button>
+        </Box>{" "}
       </Box>
     </Box>
   );
