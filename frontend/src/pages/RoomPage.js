@@ -47,8 +47,11 @@ function RoomPage() {
   const [code, setCode] = useState(question.template);
   const [usersInRoom, setUsersInRoom] = useState([]);
   const [roomFound, setRoomFound] = useState(false);
-  const [output, setOutput] = useState([]);
-  const [outputError, setOutputError] = useState("");
+  const initOutput = {
+    output: "",
+    cpuTime: "",
+  };
+  const [output, setOutput] = useState(initOutput);
 
   const emitCodeChange = (socket, value) => {
     socket.emit("code-changed", value);
@@ -90,26 +93,17 @@ function RoomPage() {
 
   const handleExecCode = async () => {
     try {
-      setOutput(["Executing..."]);
-      setOutputError("");
+      setOutput({ cpuTime: "", output: "Executing..." });
       const response = await axios.post(URL_COLLAB_SVC + "/code", {
         code,
       });
+      setOutput(initOutput);
       console.log(response.data);
-      if (response.data.error) {
-        setOutputError(response.data.error);
-      } else if (response.data.output) {
-        setOutputError("");
-        setOutput(response.data.output);
-      } else {
-        setOutputError("");
-        setOutput([]);
-      }
+      setOutput(response.data);
     } catch (err) {
       console.log(err);
       enqueueSnackbar("Error executing code!", { variant: "error" });
-      setOutput([]);
-      setOutputError("");
+      setOutput(initOutput);
       return;
     }
   };
@@ -157,6 +151,7 @@ function RoomPage() {
     });
     socket.on("room:connection", (users) => {
       setUsersInRoom(users);
+      // enqueueSnackbar(`Users in room: ${users.join(", ")}`);
     });
     socket.on("disconnect", () => {
       socket.emit("disconnect-from-room", { roomId });
@@ -192,17 +187,26 @@ function RoomPage() {
         paddingRight={4}
         paddingLeft={4}
         display={"flex"}
-        height={"600px"}
+        height={"80vh"}
+        maxHeight={"640px"}
         gap={1}
       >
-        <Box flexShrink={2} display={"flex"} flexDirection={"column"} gap={1}>
+        <Box
+          flexBasis={"480px"}
+          maxWidth={"480px"}
+          flexShrink={2}
+          display={"flex"}
+          flexDirection={"column"}
+          gap={1}
+        >
           <Paper
             variant="outlined"
             sx={(theme) => ({
               padding: "20px 20px",
-              overflow: "scroll",
+              overflowY: "scroll",
               borderColor: theme.palette.grey[600],
-              flex: 3,
+              flex: 2,
+              width: "100%",
             })}
           >
             <QuestionDisplay question={question} />
@@ -210,16 +214,17 @@ function RoomPage() {
           <Paper
             variant="outlined"
             sx={(theme) => ({
-              overflow: "scroll",
+              overflow: "hidden",
               borderColor: theme.palette.grey[600],
               flex: 2,
             })}
           >
-            <Chat />
+            <Chat inRoomUsers={usersInRoom} />
           </Paper>
         </Box>
         <Box
           flexBasis={"720px"}
+          maxWidth={"720px"}
           flexShrink={3}
           display={"flex"}
           flexDirection={"column"}
@@ -228,7 +233,7 @@ function RoomPage() {
           <Paper
             variant="outlined"
             sx={(theme) => ({
-              overflow: "scroll",
+              overflowY: "scroll",
               maxWidth: "720px",
               borderColor: theme.palette.grey[600],
               flex: 3,
@@ -247,16 +252,18 @@ function RoomPage() {
               padding: 2,
             })}
           >
-            {outputError ? (
-              <Typography fontFamily={"Fira Code"} color={"error"}>
-                {outputError}
-              </Typography>
-            ) : (
-              output.map((o, id) => (
-                <Typography fontFamily={"Fira Code"} key={id}>
-                  {o}
+            {output.output && (
+              <>
+                <Typography fontFamily={"Fira Code"}>
+                  {output.output}
                 </Typography>
-              ))
+                <br />
+              </>
+            )}
+            {output.cpuTime && (
+              <Typography fontFamily={"Fira Code"}>
+                Finished in {output.cpuTime}s
+              </Typography>
             )}
           </Paper>
         </Box>
@@ -300,9 +307,9 @@ function QuestionDisplay({ question }) {
         ))}
       </Stack>
       {/* <Typography>Users in room: {usersInRoom.join(", ")}</Typography> */}
-      <div className={isDarkTheme ? "markdown-dark" : "markdorm-light"}>
+      <Box id={isDarkTheme ? "markdown-dark" : "markdorm-light"}>
         {htmlParse(marked(question.question))}
-      </div>
+      </Box>
     </>
   );
 }

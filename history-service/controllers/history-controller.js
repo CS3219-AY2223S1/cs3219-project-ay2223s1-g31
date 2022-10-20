@@ -30,7 +30,7 @@ export async function createHistoryEntry(req, res) {
 
 export async function getHistoryEntry(req, res) {
   try {
-    const { username } = req.params;
+    const { username } = req.user;
     if (!username) {
       return res.status(400).json({ message: "Missing username!" });
     }

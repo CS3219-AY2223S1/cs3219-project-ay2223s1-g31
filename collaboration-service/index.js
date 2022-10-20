@@ -2,8 +2,10 @@ import express from "express";
 import cors from "cors";
 import morgan from "morgan";
 import http from "http";
+import cookieParser from "cookie-parser";
 import { Server } from "socket.io";
 import chalk from "chalk";
+import "dotenv/config";
 import {
   createRoom,
   deleteRoom,
@@ -15,9 +17,10 @@ import { disconnectHandler } from "./handlers/disconnect-handler.js";
 import { codeChangeHandler } from "./handlers/code-change-handler.js";
 import { leaveRoomHandler } from "./handlers/leave-room-handler.js";
 import { codeExec } from "./controllers/code-controller.js";
+import { verifyAccessToken } from "./middlewares/verifyAccessToken.js";
 
-const FRONTEND_ORIGIN = "http://localhost:3000";
-const PORT = 8050;
+const FRONTEND_ORIGIN = process.env.FRONTEND_ORIGIN || "http://localhost:3000";
+const PORT = process.env.PORT || 8050;
 
 const app = express();
 const server = http.createServer(app);
@@ -30,6 +33,7 @@ app.use(
     credentials: true,
   })
 );
+app.use(cookieParser());
 app.use(morgan("dev"));
 
 const router = express.Router();
@@ -44,13 +48,13 @@ router.get("/ping", (_, res) =>
 );
 
 // room routes
-router.post("/room", createRoom);
-router.get("/room/:roomId", getRoomInfo);
-router.get("/roomQuestion/:roomId", getRoomQuestion);
-router.delete("/room/:roomId", deleteRoom);
+router.post("/room", verifyAccessToken, createRoom);
+router.get("/room/:roomId", verifyAccessToken, getRoomInfo);
+router.get("/roomQuestion/:roomId", verifyAccessToken, getRoomQuestion);
+router.delete("/room/:roomId", verifyAccessToken, deleteRoom);
 
 // code routes
-router.post("/code", codeExec);
+router.post("/code", verifyAccessToken, codeExec);
 
 io.on("connection", (socket) => {
   console.log("Connected " + socket.id);

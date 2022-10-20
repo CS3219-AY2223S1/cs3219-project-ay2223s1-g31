@@ -1,11 +1,12 @@
 import express from "express";
+import "dotenv/config";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { joinRoomHandler } from "./handlers/join-room-handler.js";
 import { leaveRoomHandler } from "./handlers/leave-room-handler.js";
 import { sendMessageHandler } from "./handlers/send-message-handler.js";
 
-const PORT = 8002;
+const PORT = process.env.PORT || 8002;
 
 const app = express();
 const server = createServer(app);

@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import bcrypt from "bcrypt";
+import bcrypt from "bcryptjs";
 
 export function generateAccessToken(user) {
   return jwt.sign(
@@ -27,9 +27,9 @@ export function generateRefreshToken(user) {
 }
 
 export async function generateHashedPassword(password) {
-  return await bcrypt.hash(password, 10);
+  return bcrypt.hashSync(password, 10);
 }
 
 export async function validatePassword(password, hashedPassword) {
-  return await bcrypt.compare(password, hashedPassword);
+  return bcrypt.compareSync(password, hashedPassword);
 }

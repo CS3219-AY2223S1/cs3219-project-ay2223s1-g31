@@ -2,7 +2,9 @@ import { createClient } from "redis";
 import moment from "moment";
 import chalk from "chalk";
 
-const redisClient = createClient();
+const redisClient = createClient({
+  url: `redis://${process.env.REDIS_HOST}:6379`,
+});
 const EXPIRATION = 60 * 60 * 24;
 
 redisClient
@@ -135,6 +137,15 @@ export async function ormDeleteRoomInfo(roomId) {
 export async function ormDeleteRoomQuestion(roomId) {
   try {
     const result = await redisClient.del(`${roomId}:question`);
+    return true;
+  } catch (err) {
+    return { err };
+  }
+}
+
+export async function ormDeleteConnection(socketId) {
+  try {
+    const result = await redisClient.del(socketId);
     return true;
   } catch (err) {
     return { err };

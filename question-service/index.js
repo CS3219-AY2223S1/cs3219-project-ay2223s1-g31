@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const cors = require("cors");
 const morgan = require("morgan");
 const qRoutes = require("./routes/question-routes");
+const { initQuestions } = require("./migration/initQuestions");
 
 const FRONTEND_ORIGIN = "http://localhost:3000";
 const PORT = process.env.PORT || 8051;
@@ -29,6 +30,13 @@ app.use("/api/question", qRoutes).all((_, res) => {
 // connect db
 mongoose
   .connect(process.env.MONGODB_URI)
+  .then(async () => {
+    try {
+      await initQuestions();
+    } catch (err) {
+      console.log("Questions already inserted");
+    }
+  })
   .then(() => {
     app.listen(PORT, () => {
       console.log(`Connected to db and listening on port ${PORT}`);

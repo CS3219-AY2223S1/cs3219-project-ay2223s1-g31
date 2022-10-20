@@ -63,6 +63,11 @@ export async function getRoomQuestion(req, res) {
 export async function createRoom(req, res) {
   try {
     const { roomId, username1, username2, question } = req.body;
+    if (req.user.username !== username1 && req.user.username !== username2) {
+      return res
+        .status(403)
+        .json({ message: "Cannot create room for other users" });
+    }
     if (!username1 || !username2 || !question || !roomId) {
       return res.status(400).json({ message: "Missing fields!" });
     }
@@ -87,7 +92,7 @@ export async function createRoom(req, res) {
 
 export async function deleteRoom(req, res) {
   try {
-    const { username } = req.body;
+    const { username } = req.user;
     const { roomId } = req.params;
 
     const resp1 = await ormDeleteRoomInfo(roomId);

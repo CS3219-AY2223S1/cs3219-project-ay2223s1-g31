@@ -18,11 +18,13 @@ export function stringToColor(string) {
   return color;
 }
 
-export function stringAvatar(name) {
+export function stringAvatar(name, sx = {}) {
   return {
-    sx: {
-      bgcolor: stringToColor(name),
-    },
+    sx: (theme) => ({
+      backgroundColor: stringToColor(name),
+      color: theme.palette.getContrastText(stringToColor(name)),
+      ...sx,
+    }),
     children: name.length >= 2 ? `${name[0] + name[1]}` : `${name[0]}`,
   };
 }
