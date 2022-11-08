@@ -1,0 +1,131 @@
+version: "3.3"
+
+services:
+  mongo:
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - peerprep-users:/data/db
+      - peerprep-questions:/data/db
+      - peerprep-history:/data/db
+
+  redis-collab:
+    image: redis:alpine
+    ports:
+      - "6377:6377"
+
+  redis-comm:
+    image: redis:alpine
+    ports:
+      - "6378:6378"
+
+  user-service:
+    build:
+      context: ./user-service
+    ports:
+      - "8000:8000"
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    env_file:
+      - ./user-service/.env
+    environment:
+      - DB_LOCAL_URI=mongodb://mongo/peerprep-users
+
+  matching-service:
+    build:
+      context: ./matching-service
+    ports:
+      - "8001:8001"
+    env_file:
+      - ./matching-service/.env
+
+  communication-service:
+    build:
+      context: ./communication-service
+    ports:
+      - "8002:8002"
+    links:
+      - redis-comm
+    depends_on:
+      - redis-comm
+    env_file:
+      - ./communication-service/.env
+    environment:
+      - REDIS_HOST=redis-collab
+      - USER_SVC_URL=http://user-service:8000/api/user
+
+  collaboration-service:
+    build:
+      context: ./collaboration-service
+    ports:
+      - "8050:8050"
+    links:
+      - redis-collab
+      - user-service
+    depends_on:
+      - redis-collab
+    env_file:
+      - ./collaboration-service/.env
+    environment:
+      - REDIS_HOST=redis-collab
+      - USER_SVC_URL=http://user-service:8000/api/user
+
+  question-service:
+    build:
+      context: ./question-service
+    ports:
+      - 8051:8051
+    links:
+      - mongo
+    depends_on:
+      - mongo
+    env_file:
+      - ./question-service/.env
+    environment:
+      - MONGODB_URI=mongodb://mongo/peerprep-questions
+
+  history-service:
+    build:
+      context: ./history-service
+    ports:
+      - 8052:8052
+    links:
+      - mongo
+      - user-service
+    depends_on:
+      - mongo
+    env_file:
+      - ./history-service/.env
+    environment:
+      - DB_LOCAL_URI=mongodb://mongo/peerprep-history
+      - USER_SVC_URL=http://user-service:8000/api/user
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "3000:3000"
+    depends_on:
+      - user-service
+      - matching-service
+      - question-service
+      - collaboration-service
+      - communication-service
+      - history-service
+    env_file:
+      - ./frontend/.env
+    environment:
+      - URI_USER_SVC=http://user-service:8000
+      - URI_MATCH_SVC=http://matching-service:8001
+      - URI_COLLAB_SVC=http://collaboration-service:8050
+      - URI_QUESTION_SVC=http://question-service:8051
+      - URI_HISTORY_SVC=http://history-service:8052
+      - URI_COMM_SVC=http://communication-service:8002
+
+volumes:
+  peerprep-users:
+  peerprep-questions:
+  peerprep-history:
