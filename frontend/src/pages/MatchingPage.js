@@ -174,7 +174,7 @@ function MatchingPage() {
   };
 
   return (
-    <Box>
+    <Box width={"100%"} maxWidth={1000}>
       <Typography variant="h3">Choose your difficulty</Typography>
       <form onSubmit={handleFindMatch}>
         <FormControl
@@ -200,7 +200,6 @@ function MatchingPage() {
           </Button>
         </FormControl>
       </form>
-      {/* <CollabRoomTest difficulty={difficulty} /> */}
       <Dialog
         open={isFinding}
         onClose={handleCancelFindMatch}
@@ -256,8 +255,9 @@ function DifficultyOptions({ difficulty, setDifficulty }) {
   return (
     <Stack
       direction={"row"}
-      justifyContent="space-evenly"
+      justifyContent={"space-evenly"}
       alignItems="center"
+      flexWrap={"wrap"}
       gap={1}
       pt={2}
       pb={2}
@@ -287,11 +287,13 @@ function DifficultyOptions({ difficulty, setDifficulty }) {
               onClick={() => setDifficulty(title)}
               sx={{
                 height: "100%",
+                paddingLeft: 1,
+                paddingRight: 1,
               }}
             >
               <CardHeader
                 title={optionIcons[idx] + " " + title.toUpperCase()}
-                titleTypographyProps={{ variant: "h4" }}
+                titleTypographyProps={{ variant: "h4", fontWeight: 500 }}
               />
               <CardContent>
                 <Typography fontSize={18}>{optionContent[idx]}</Typography>

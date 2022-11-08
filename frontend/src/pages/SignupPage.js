@@ -8,7 +8,9 @@ import {
   DialogTitle,
   TextField,
   Typography,
+  Paper,
 } from "@mui/material";
+import PersonAddAlt1Icon from "@mui/icons-material/PersonAddAlt1";
 import { useState } from "react";
 import axios from "axios";
 import { URL_USER_SVC } from "../configs";
@@ -17,7 +19,7 @@ import {
   STATUS_CODE_CONFLICT,
   STATUS_CODE_CREATED,
 } from "../constants";
-import { Link } from "react-router-dom";
+import Link from "../components/Link";
 
 const LOGIN_URL = "/login";
 
@@ -29,7 +31,8 @@ function SignupPage() {
   const [dialogMsg, setDialogMsg] = useState("");
   const [isSignupSuccess, setIsSignupSuccess] = useState(false);
 
-  const handleSignup = async () => {
+  const handleSignup = async (e) => {
+    e.preventDefault();
     setIsSignupSuccess(false);
     const res = await axios
       .post(URL_USER_SVC, { username, password })
@@ -65,45 +68,61 @@ function SignupPage() {
 
   return (
     <Box
-      display={"flex"}
       flexDirection={"column"}
       width={"100%"}
       maxWidth={"400px"}
+      marginTop={4}
     >
-      <Typography variant={"h3"} marginBottom={"2rem"}>
-        Sign Up
-      </Typography>
-      <TextField
-        label="Username"
-        variant="standard"
-        required
-        value={username}
-        onChange={(e) => setUsername(e.target.value)}
-        sx={{ marginBottom: "1rem" }}
-        autoFocus
-      />
-      <TextField
-        label="Password"
-        variant="standard"
-        required
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        sx={{ marginBottom: "2rem" }}
-      />
-      <Box
-        display={"flex"}
-        alignItems={"center"}
-        gap={"20px"}
-        flexWrap={"wrap"}
+      <Paper
+        variant="outlined"
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          padding: 4,
+          paddingTop: 10,
+          paddingBottom: 10,
+        }}
       >
-        <Button variant={"outlined"} onClick={handleSignup}>
-          Sign up
-        </Button>
-        <Typography>
-          Already have an account? Please <Link to={LOGIN_URL}>login</Link>
+        <Typography variant={"h3"} marginBottom={"2rem"}>
+          Sign Up
         </Typography>
-      </Box>
+        <form onSubmit={handleSignup} style={{ width: "100%", paddingTop: 14 }}>
+          <TextField
+            label="Username"
+            variant="outlined"
+            required
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            sx={{ marginBottom: "1rem" }}
+            fullWidth
+            autoFocus
+          />
+          <TextField
+            label="Password"
+            variant="outlined"
+            required
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            sx={{ marginBottom: "2rem" }}
+            fullWidth
+          />
+          <Box
+            display={"flex"}
+            gap={"20px"}
+            flexDirection={"column"}
+            alignItems={"center"}
+          >
+            <Button variant={"contained"} fullWidth type="submit">
+              Sign up <PersonAddAlt1Icon fontSize="small" sx={{ ml: 1 }} />
+            </Button>
+            <Typography mt={2}>
+              Already have an account? <Link to={LOGIN_URL}>Login</Link>
+            </Typography>
+          </Box>
+        </form>
+      </Paper>
 
       <Dialog open={isDialogOpen} onClose={closeDialog}>
         <DialogTitle>{dialogTitle}</DialogTitle>
