@@ -43,7 +43,7 @@ app.use("/api/user", router).all((_, res) => {
 router.get("/ping", (_, res) => res.send("Hello World from user-service"));
 
 router.post("/", createUser);
-router.get("", authenticateToken, getUser);
+router.get("/", authenticateToken, getUser);
 router.post("/login", login);
 router.post("/logout", logout);
 router.post("/verifyToken", authenticateToken, getUser);

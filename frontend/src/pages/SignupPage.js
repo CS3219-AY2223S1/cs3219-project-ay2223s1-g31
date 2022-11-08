@@ -31,7 +31,8 @@ function SignupPage() {
   const [dialogMsg, setDialogMsg] = useState("");
   const [isSignupSuccess, setIsSignupSuccess] = useState(false);
 
-  const handleSignup = async () => {
+  const handleSignup = async (e) => {
+    e.preventDefault();
     setIsSignupSuccess(false);
     const res = await axios
       .post(URL_USER_SVC, { username, password })
@@ -89,7 +90,7 @@ function SignupPage() {
         <form onSubmit={handleSignup} style={{ width: "100%", paddingTop: 14 }}>
           <TextField
             label="Username"
-            variant="standard"
+            variant="outlined"
             required
             value={username}
             onChange={(e) => setUsername(e.target.value)}
@@ -99,7 +100,7 @@ function SignupPage() {
           />
           <TextField
             label="Password"
-            variant="standard"
+            variant="outlined"
             required
             type="password"
             value={password}

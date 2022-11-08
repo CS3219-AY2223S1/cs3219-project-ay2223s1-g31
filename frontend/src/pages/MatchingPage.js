@@ -27,7 +27,6 @@ import {
 import { useAuth } from "../utils/AuthContext";
 import CircularProgressLabelled from "../components/CircularProgressLabelled";
 import { CODE_CACHE_KEY } from "./RoomPage";
-import { Container } from "@mui/system";
 
 const Difficulty = {
   EASY: "easy",
